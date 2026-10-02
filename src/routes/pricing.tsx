@@ -55,7 +55,7 @@ function PricingScreen() {
 
       <div className="flex flex-1 flex-col px-5 pb-6 pt-6">
         <div className="flex h-40 items-center justify-center overflow-hidden rounded-3xl bg-primary/5 px-6">
-          <ZyraFitLogo className="h-auto w-full" />
+          <ZyraFitLogo className="aspect-[2.45/1] w-full rounded-md" />
         </div>
 
         <h1 className="mt-6 text-center text-xl font-extrabold leading-snug">

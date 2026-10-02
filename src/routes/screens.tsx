@@ -59,7 +59,7 @@ function Screens() {
   return (
     <Screen>
       <div className="px-5 py-6">
-        <ZyraFitLogo className="mb-5 h-auto w-40" />
+        <ZyraFitLogo className="mb-5 aspect-[2.45/1] w-40 rounded-sm" />
         <h1 className="text-2xl font-bold">All screens</h1>
         <p className="mt-1 text-sm text-muted-foreground">Tap any screen to open it.</p>
         {groups.map((g) => (

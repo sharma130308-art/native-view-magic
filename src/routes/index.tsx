@@ -100,7 +100,7 @@ function Index() {
             </p>
           ) : null}
           {page === 0 ? (
-            <ZyraFitLogo className="mx-auto h-auto w-48" />
+            <ZyraFitLogo className="mx-auto aspect-[2.45/1] w-48 rounded-sm" />
           ) : (
             <h1 className="text-3xl font-bold leading-tight">{current.title}</h1>
           )}
