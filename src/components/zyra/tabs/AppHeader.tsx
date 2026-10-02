@@ -1,14 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Bell, Settings, Sparkles } from "lucide-react";
+import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 
 /** Mirrors Flutter AppHeader: app logo/name, Pro chip, notifications, settings. */
 export function AppHeader() {
   return (
     <div className="flex items-center gap-2 px-4 py-3">
-      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">
-        Z
-      </div>
-      <span className="text-sm font-bold text-foreground">ZyraFit</span>
+      <ZyraFitLogo className="h-8 w-28 rounded-sm" />
       <div className="flex-1" />
       <Link
         to="/pricing"

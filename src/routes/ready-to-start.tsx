@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Screen } from "@/components/zyra/TabBar";
+import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 
 export const Route = createFileRoute("/ready-to-start")({
   head: () => ({
@@ -21,9 +21,7 @@ function ReadyToStartScreen() {
   return (
     <Screen>
     <div className="mx-auto flex min-h-svh w-full max-w-md flex-col items-center justify-center bg-background px-8 text-center text-foreground">
-      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
-        <Sparkles className="h-12 w-12 text-primary" />
-      </div>
+      <ZyraFitLogo compact className="h-24 w-24 rounded-2xl" />
       <h1 className="mt-8 text-3xl font-bold leading-tight">You're all set!</h1>
       <p className="mx-auto mt-3 max-w-xs text-sm leading-6 text-muted-foreground">
         Your personalized nutrition plan is ready. Let's start tracking your meals and reaching your goals.
