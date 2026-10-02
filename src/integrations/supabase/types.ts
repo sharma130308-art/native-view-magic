@@ -34,6 +34,7 @@ export type Database = {
       }
       workout_videos: {
         Row: {
+          category: string
           content_type: string
           created_at: string
           file_size: number
@@ -43,6 +44,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          category?: string
           content_type: string
           created_at?: string
           file_size: number
@@ -52,6 +54,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          category?: string
           content_type?: string
           created_at?: string
           file_size?: number

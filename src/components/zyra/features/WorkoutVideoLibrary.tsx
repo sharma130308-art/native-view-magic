@@ -1,5 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Film, FolderUp, LoaderCircle, LogIn, Play, Search, Trash2, X } from "lucide-react";
+import {
+  Activity,
+  Dumbbell,
+  Film,
+  FolderUp,
+  Heart,
+  LoaderCircle,
+  LogIn,
+  PersonStanding,
+  Play,
+  Search,
+  SlidersHorizontal,
+  Star,
+  Trash2,
+  X,
+  Zap,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +30,24 @@ type UploadState = { done: number; failed: number; total: number };
 
 const PAGE_SIZE = 12;
 const ALLOWED_TYPES = new Set(["video/mp4", "video/quicktime", "video/x-m4v", "video/webm"]);
+
+const CATEGORIES = [
+  { id: "favorites", label: "Favorites", icon: Star },
+  { id: "cardio", label: "Cardio", icon: Activity },
+  { id: "chest", label: "Chest", icon: Dumbbell },
+  { id: "back", label: "Back", icon: PersonStanding },
+  { id: "biceps", label: "Biceps", icon: Zap },
+  { id: "triceps", label: "Triceps", icon: Zap },
+  { id: "quadriceps", label: "Quadriceps", icon: PersonStanding },
+  { id: "hamstrings", label: "Hamstrings", icon: PersonStanding },
+  { id: "shoulders", label: "Shoulders", icon: Dumbbell },
+  { id: "calves", label: "Calves", icon: PersonStanding },
+  { id: "forearms", label: "Forearms", icon: Dumbbell },
+  { id: "neck", label: "Neck", icon: PersonStanding },
+  { id: "other", label: "Other", icon: Heart },
+] as const;
+
+type CategoryId = (typeof CATEGORIES)[number]["id"];
 
 function cleanTitle(filename: string) {
   return filename.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim() || "Workout video";
@@ -43,6 +77,25 @@ export function WorkoutVideoLibrary() {
   const [password, setPassword] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [category, setCategory] = useState<CategoryId | "all">("all");
+  const [uploadCategory, setUploadCategory] = useState<CategoryId>("other");
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem("zyrafit-video-favorites") ?? "[]") as string[]);
+    } catch {
+      return new Set();
+    }
+  });
+
+  const toggleFavorite = (id: string) => {
+    setFavorites((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      localStorage.setItem("zyrafit-video-favorites", JSON.stringify([...next]));
+      return next;
+    });
+  };
 
   const loadVideos = async (id: string) => {
     setLoading(true);
@@ -86,8 +139,12 @@ export function WorkoutVideoLibrary() {
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
-    return term ? videos.filter((video) => video.title.toLowerCase().includes(term)) : videos;
-  }, [query, videos]);
+    return videos.filter((video) => {
+      if (category === "favorites" && !favorites.has(video.id)) return false;
+      if (category !== "all" && category !== "favorites" && video.category !== category) return false;
+      return term ? video.title.toLowerCase().includes(term) : true;
+    });
+  }, [query, videos, category, favorites]);
   const visible = filtered.slice(0, page * PAGE_SIZE);
 
   const chooseFolder = () => {
@@ -133,6 +190,7 @@ export function WorkoutVideoLibrary() {
             storage_path: path,
             file_size: file.size,
             content_type: file.type,
+            category: uploadCategory,
           });
           if (rowError) {
             failed += 1;
@@ -205,10 +263,24 @@ export function WorkoutVideoLibrary() {
           <h2 className="text-base font-bold text-foreground">Videos</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">{userId ? `${videos.length} workout videos` : "Sign in to watch workout videos"}</p>
         </div>
-        {isAdmin ? <Button size="sm" className="gap-2" onClick={chooseFolder} disabled={upload !== null && upload.done + upload.failed < upload.total}>
-          {upload && upload.done + upload.failed < upload.total ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FolderUp className="h-4 w-4" />}
-          Add folder
-        </Button> : null}
+        {isAdmin ? (
+          <div className="flex items-center gap-2">
+            <select
+              value={uploadCategory}
+              onChange={(event) => setUploadCategory(event.target.value as CategoryId)}
+              className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+              aria-label="Category for uploaded videos"
+            >
+              {CATEGORIES.filter(({ id }) => id !== "favorites").map(({ id, label }) => (
+                <option key={id} value={id}>{label}</option>
+              ))}
+            </select>
+            <Button size="sm" className="gap-2" onClick={chooseFolder} disabled={upload !== null && upload.done + upload.failed < upload.total}>
+              {upload && upload.done + upload.failed < upload.total ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FolderUp className="h-4 w-4" />}
+              Add folder
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       {upload ? (
@@ -222,10 +294,43 @@ export function WorkoutVideoLibrary() {
       ) : null}
 
       {userId && videos.length > 0 ? (
-        <div className="relative mt-3">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search videos" className="pl-9" />
-        </div>
+        <>
+          <div className="-mx-4 mt-3 flex gap-1 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Workout categories">
+            {CATEGORIES.map(({ id, label, icon: Icon }) => {
+              const active = category === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => { setCategory(active ? "all" : id); setPage(1); }}
+                  className="flex w-16 shrink-0 flex-col items-center gap-1.5 rounded-lg py-2"
+                >
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"}`}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className={`text-[10px] font-medium leading-tight ${active ? "text-primary" : "text-muted-foreground"}`}>{label}</span>
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => { setCategory("all"); setQuery(""); setPage(1); }}
+              className="flex w-16 shrink-0 flex-col items-center gap-1.5 rounded-lg py-2"
+              aria-label="Show all videos"
+            >
+              <span className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${category === "all" && !query ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"}`}>
+                <SlidersHorizontal className="h-5 w-5" />
+              </span>
+              <span className={`text-[10px] font-medium leading-tight ${category === "all" && !query ? "text-primary" : "text-muted-foreground"}`}>All</span>
+            </button>
+          </div>
+          <div className="relative mt-2">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search videos" className="pl-9" />
+          </div>
+        </>
       ) : null}
 
       {loading ? (
@@ -243,6 +348,9 @@ export function WorkoutVideoLibrary() {
                     <p className="truncate text-sm font-semibold text-foreground">{video.title}</p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground">{formatSize(video.file_size)}</p>
                   </div>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => toggleFavorite(video.id)} aria-label={favorites.has(video.id) ? `Remove ${video.title} from favorites` : `Add ${video.title} to favorites`}>
+                    <Star className={`h-4 w-4 ${favorites.has(video.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                  </Button>
                   {isAdmin ? <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => void removeVideo(video)} aria-label={`Delete ${video.title}`} title="Delete video">
                     <Trash2 className="h-4 w-4 text-muted-foreground" />
                   </Button> : null}
