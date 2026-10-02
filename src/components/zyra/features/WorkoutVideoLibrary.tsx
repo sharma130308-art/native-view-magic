@@ -355,9 +355,10 @@ export function WorkoutVideoLibrary() {
           <div className="mt-3 grid grid-cols-2 gap-3">
             {visible.map((video) => (
               <article key={video.id} className="overflow-hidden rounded-lg border border-border bg-card">
-                <button type="button" onClick={() => void playVideo(video)} className="flex aspect-video w-full items-center justify-center bg-secondary" aria-label={`Play ${video.title}`}>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground"><Play className="h-4 w-4" fill="currentColor" /></span>
-                </button>
+                <button type="button" onClick={() => void playVideo(video)} className="relative flex aspect-video w-full items-center justify-center overflow-hidden bg-secondary" aria-label={`Play ${video.title}`}>
+                  <VideoThumb path={video.storage_path} />
+                  <span className="absolute flex h-10 w-10 items-center justify-center rounded-full bg-primary/90 text-primary-foreground shadow"><Play className="h-4 w-4" fill="currentColor" /></span>
+                 </button>
                 <div className="flex items-start gap-1 p-2.5">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-foreground">{video.title}</p>
