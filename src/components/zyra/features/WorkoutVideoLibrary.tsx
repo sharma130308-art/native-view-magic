@@ -433,5 +433,17 @@ function VideoThumb({ path }: { path: string }) {
     return () => { active = false; };
   }, [path]);
   if (!url) return null;
-  return <video src={url} muted playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" aria-hidden="true" />;
+  return (
+    <video
+      src={url}
+      muted
+      loop
+      autoPlay
+      playsInline
+      preload="auto"
+      onCanPlay={(event) => void event.currentTarget.play().catch(() => undefined)}
+      className="absolute inset-0 h-full w-full object-cover"
+      aria-hidden="true"
+    />
+  );
 }
