@@ -3,6 +3,7 @@ import { Camera, Check, Edit3, QrCode, Search, Send, X, Loader2, ImagePlus } fro
 import { useEffect, useRef, useState } from "react";
 
 import { Screen } from "@/components/zyra/TabBar";
+import { addToFoodLog } from "@/lib/food-log";
 
 export const Route = createFileRoute("/scan")({
   head: () => ({
@@ -471,10 +472,7 @@ function AddToLogButton({ result }: { result: FoodResult }) {
   const navigate = useNavigate();
   const add = () => {
     try {
-      const key = "zyrafit-food-log";
-      const log = JSON.parse(localStorage.getItem(key) ?? "[]");
-      log.push({ at: new Date().toISOString(), items: result.items });
-      localStorage.setItem(key, JSON.stringify(log));
+      addToFoodLog(result.items);
     } catch {
       // ignore storage errors
     }

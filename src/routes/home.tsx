@@ -10,6 +10,7 @@ import {
   WaterIntakeWidget,
   WeekDaySelector,
 } from "@/components/zyra/tabs/DashboardWidgets";
+import { useTodayLog } from "@/lib/food-log";
 
 export const Route = createFileRoute("/home")({
   component: HomeScreen,
@@ -26,9 +27,15 @@ export const Route = createFileRoute("/home")({
 });
 
 function HomeScreen() {
-  const currentCalories = 1420;
+  const { entries, totals } = useTodayLog();
+  const currentCalories = Math.round(totals.calories);
   const targetCalories = 2100;
   const streak = 5;
+  const meals = [...entries].reverse().map((e) => ({
+    name: e.items.map((i) => i.name).join(", ") || "Meal",
+    calories: Math.round(e.items.reduce((s, i) => s + (i.calories || 0), 0)),
+    time: new Date(e.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+  }));
 
   return (
     <Screen tab="home">
@@ -41,11 +48,11 @@ function HomeScreen() {
         <WeekDaySelector />
         <CalorieSummaryCard current={currentCalories} target={targetCalories} />
         <div className="flex gap-3">
-          <MacroRingCard label="Protein" current={92} target={150} color="#FF6B6B" icon={Egg} />
-          <MacroRingCard label="Carbs" current={140} target={220} color="#FFB84D" icon={Wheat} />
-          <MacroRingCard label="Fat" current={48} target={70} color="#4DA3FF" icon={Grape} />
+          <MacroRingCard label="Protein" current={Math.round(totals.protein)} target={150} color="#FF6B6B" icon={Egg} />
+          <MacroRingCard label="Carbs" current={Math.round(totals.carbs)} target={220} color="#FFB84D" icon={Wheat} />
+          <MacroRingCard label="Fat" current={Math.round(totals.fat)} target={70} color="#4DA3FF" icon={Grape} />
         </div>
-        <RecentMealsSection />
+        <RecentMealsSection meals={meals} />
         <WaterIntakeWidget waterIntake={4} />
       </div>
       <Link
