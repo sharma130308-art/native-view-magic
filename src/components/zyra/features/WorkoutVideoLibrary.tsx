@@ -246,14 +246,8 @@ export function WorkoutVideoLibrary() {
           </div>
           {visible.length < filtered.length ? <Button variant="outline" className="mt-3 w-full" onClick={() => setPage((value) => value + 1)}>Load more</Button> : null}
         </>
-      ) : userId && !isAdmin ? (
-        <p className="mt-3 rounded-lg border border-border bg-card p-5 text-center text-sm text-muted-foreground">No workout videos yet</p>
       ) : userId ? (
-        <button type="button" onClick={chooseFolder} className="mt-3 flex w-full flex-col items-center rounded-lg border border-dashed border-border bg-card px-5 py-8 text-center">
-          <Film className="h-7 w-7 text-muted-foreground" />
-          <span className="mt-2 text-sm font-semibold text-foreground">Add your workout folder</span>
-          <span className="mt-1 text-xs text-muted-foreground">Select up to 1,000 videos</span>
-        </button>
+        <p className="mt-3 rounded-lg border border-border bg-card p-5 text-center text-sm text-muted-foreground">No workout videos yet</p>
       ) : (
         <button type="button" onClick={() => setShowSignIn(true)} className="mt-3 flex w-full items-center gap-3 rounded-lg border border-border bg-card p-4 text-left">
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10"><LogIn className="h-5 w-5 text-primary" /></span>
