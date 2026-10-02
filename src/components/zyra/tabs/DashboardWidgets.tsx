@@ -20,13 +20,15 @@ export function WeekDaySelector({ todayIndex = 3 }: { todayIndex?: number }) {
       {WEEK_LABELS.map((label, i) => {
         const isToday = i === todayIndex;
         const isFuture = i > todayIndex;
-        const ratio = calories[i] > 0 ? calories[i] / targets[i] : 0;
+        const cal = calories[i] ?? 0;
+        const tgt = targets[i] ?? 2000;
+        const ratio = cal > 0 ? cal / tgt : 0;
         let color = "rgb(148 163 184 / 0.35)";
         let progress = 0;
         if (isToday) {
           color = "hsl(var(--primary))";
           progress = ratio;
-        } else if (isFuture || calories[i] === 0) {
+        } else if (isFuture || cal === 0) {
           color = "rgb(148 163 184 / 0.35)";
           progress = 0;
         } else if (ratio > 1.08) {
