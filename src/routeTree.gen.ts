@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FoodLoggingRouteImport } from './routes/food-logging'
 import { Route as GettingStartedRouteImport } from './routes/getting-started'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -37,6 +38,11 @@ import { Route as ApiPreviewDoctorRouteImport } from './routes/api/preview-docto
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FoodLoggingRoute = FoodLoggingRouteImport.update({
@@ -157,6 +163,7 @@ const ApiPreviewDoctorRoute = ApiPreviewDoctorRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/food-logging': typeof FoodLoggingRoute
   '/getting-started': typeof GettingStartedRoute
   '/history': typeof HistoryRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/food-logging': typeof FoodLoggingRoute
   '/getting-started': typeof GettingStartedRoute
   '/history': typeof HistoryRoute
@@ -210,6 +218,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/food-logging': typeof FoodLoggingRoute
   '/getting-started': typeof GettingStartedRoute
   '/history': typeof HistoryRoute
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/food-logging'
     | '/getting-started'
     | '/history'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/food-logging'
     | '/getting-started'
     | '/history'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/food-logging'
     | '/getting-started'
     | '/history'
@@ -317,6 +329,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   FoodLoggingRoute: typeof FoodLoggingRoute
   GettingStartedRoute: typeof GettingStartedRoute
   HistoryRoute: typeof HistoryRoute
@@ -349,6 +362,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/food-logging': {
@@ -517,6 +537,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   FoodLoggingRoute: FoodLoggingRoute,
   GettingStartedRoute: GettingStartedRoute,
   HistoryRoute: HistoryRoute,
