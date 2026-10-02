@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PreviewDoctorRouteImport } from './routes/preview-doctor'
+import { Route as ScreensRouteImport } from './routes/screens'
 import { Route as ApiPreviewDoctorRouteImport } from './routes/api/preview-doctor'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const PreviewDoctorRoute = PreviewDoctorRouteImport.update({
   path: '/preview-doctor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ScreensRoute = ScreensRouteImport.update({
+  id: '/screens',
+  path: '/screens',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPreviewDoctorRoute = ApiPreviewDoctorRouteImport.update({
   id: '/api/preview-doctor',
   path: '/api/preview-doctor',
@@ -32,30 +38,34 @@ const ApiPreviewDoctorRoute = ApiPreviewDoctorRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/preview-doctor': typeof PreviewDoctorRoute
+  '/screens': typeof ScreensRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/preview-doctor': typeof PreviewDoctorRoute
+  '/screens': typeof ScreensRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/preview-doctor': typeof PreviewDoctorRoute
+  '/screens': typeof ScreensRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/preview-doctor' | '/api/preview-doctor'
+  fullPaths: '/' | '/preview-doctor' | '/screens' | '/api/preview-doctor'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/preview-doctor' | '/api/preview-doctor'
-  id: '__root__' | '/' | '/preview-doctor' | '/api/preview-doctor'
+  to: '/' | '/preview-doctor' | '/screens' | '/api/preview-doctor'
+  id: '__root__' | '/' | '/preview-doctor' | '/screens' | '/api/preview-doctor'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PreviewDoctorRoute: typeof PreviewDoctorRoute
+  ScreensRoute: typeof ScreensRoute
   ApiPreviewDoctorRoute: typeof ApiPreviewDoctorRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PreviewDoctorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/screens': {
+      id: '/screens'
+      path: '/screens'
+      fullPath: '/screens'
+      preLoaderRoute: typeof ScreensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/preview-doctor': {
       id: '/api/preview-doctor'
       path: '/api/preview-doctor'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PreviewDoctorRoute: PreviewDoctorRoute,
+  ScreensRoute: ScreensRoute,
   ApiPreviewDoctorRoute: ApiPreviewDoctorRoute,
 }
 export const routeTree = rootRouteImport
