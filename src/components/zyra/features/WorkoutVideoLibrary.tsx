@@ -143,66 +143,6 @@ export function WorkoutVideoLibrary() {
   }, [query, videos, category, favorites]);
   const visible = filtered.slice(0, page * PAGE_SIZE);
 
-  const chooseFolder = () => {
-    if (!userId) {
-      setShowSignIn(true);
-      return;
-    }
-    inputRef.current?.click();
-  };
-
-  const uploadFiles = async (files: File[]) => {
-    if (!userId || files.length === 0) return;
-    const accepted = files.filter((file) => ALLOWED_TYPES.has(file.type));
-    if (accepted.length === 0) {
-      toast.error("Choose MP4, MOV, M4V, or WebM videos");
-      return;
-    }
-    if (accepted.length > 1000) {
-      toast.error("Choose no more than 1,000 videos at once");
-      return;
-    }
-    setUpload({ done: 0, failed: 0, total: accepted.length });
-    let nextIndex = 0;
-    let done = 0;
-    let failed = 0;
-
-    const worker = async () => {
-      while (nextIndex < accepted.length) {
-        const file = accepted[nextIndex++];
-        if (!file) continue;
-        const path = `${userId}/${safeFilename(file.name)}`;
-        const { error: storageError } = await supabase.storage.from("workout-videos").upload(path, file, {
-          cacheControl: "3600",
-          contentType: file.type,
-          upsert: false,
-        });
-        if (storageError) {
-          failed += 1;
-        } else {
-          const { error: rowError } = await supabase.from("workout_videos").insert({
-            user_id: userId,
-            title: cleanTitle(file.name),
-            storage_path: path,
-            file_size: file.size,
-            content_type: file.type,
-            category: uploadCategory,
-          });
-          if (rowError) {
-            failed += 1;
-            await supabase.storage.from("workout-videos").remove([path]);
-          } else done += 1;
-        }
-        setUpload({ done, failed, total: accepted.length });
-      }
-    };
-
-    await Promise.all(Array.from({ length: Math.min(3, accepted.length) }, worker));
-    await loadVideos(userId);
-    if (failed) toast.error(`${failed} video${failed === 1 ? "" : "s"} could not be uploaded`);
-    else toast.success(`${done} video${done === 1 ? "" : "s"} uploaded`);
-  };
-
   const playVideo = async (video: WorkoutVideo) => {
     const { data, error } = await supabase.storage.from("workout-videos").createSignedUrl(video.storage_path, 3600);
     if (error || !data.signedUrl) {
