@@ -114,6 +114,7 @@ export function WorkoutVideoLibrary() {
     const worker = async () => {
       while (nextIndex < accepted.length) {
         const file = accepted[nextIndex++];
+        if (!file) continue;
         const path = `${userId}/${safeFilename(file.name)}`;
         const { error: storageError } = await supabase.storage.from("workout-videos").upload(path, file, {
           cacheControl: "3600",
