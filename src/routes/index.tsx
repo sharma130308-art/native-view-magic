@@ -27,7 +27,14 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const pages = [
+type OnboardingPage = {
+  eyebrow?: string;
+  title: string;
+  description: string;
+  image: string;
+};
+
+const pages: OnboardingPage[] = [
   {
     eyebrow: "Welcome to",
     title: "ZyraFit",
@@ -49,17 +56,20 @@ const pages = [
     description: "Monitor progress, set targets, and stay on track.",
     image: coachAsset.url,
   },
-] as const;
+];
 
 function Index() {
   const [page, setPage] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
-  const current = pages[page];
+  const current = pages[page] ?? pages[0];
+  if (!current) return null;
 
   const goForward = () => setPage((value) => Math.min(value + 1, pages.length - 1));
   const handleTouchEnd = (event: TouchEvent<HTMLElement>) => {
     if (touchStart === null) return;
-    const distance = touchStart - event.changedTouches[0].clientX;
+    const changedTouch = event.changedTouches.item(0);
+    if (!changedTouch) return;
+    const distance = touchStart - changedTouch.clientX;
     if (distance > 45) goForward();
     if (distance < -45) setPage((value) => Math.max(value - 1, 0));
     setTouchStart(null);
@@ -68,7 +78,7 @@ function Index() {
   return (
     <main
       className="mx-auto flex min-h-svh w-full max-w-md select-none flex-col overflow-hidden bg-background text-foreground"
-      onTouchStart={(event) => setTouchStart(event.touches[0].clientX)}
+      onTouchStart={(event) => setTouchStart(event.touches.item(0)?.clientX ?? null)}
       onTouchEnd={handleTouchEnd}
     >
       <section className="flex min-h-0 flex-1 flex-col items-center px-6 pt-[max(1rem,env(safe-area-inset-top))] text-center">
@@ -103,7 +113,7 @@ function Index() {
             />
           ))}
         </div>
-        <Button onClick={goForward}>{page === pages.length - 1 ? "Continue" : "Next"}</Button>
+        <Button size="pill" onClick={goForward}>{page === pages.length - 1 ? "Continue" : "Next"}</Button>
       </footer>
     </main>
   );
