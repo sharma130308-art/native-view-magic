@@ -423,3 +423,15 @@ export function WorkoutVideoLibrary() {
     </section>
   );
 }
+function VideoThumb({ path }: { path: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    void supabase.storage.from("workout-videos").createSignedUrl(path, 3600).then(({ data }) => {
+      if (active && data?.signedUrl) setUrl(`${data.signedUrl}#t=0.5`);
+    });
+    return () => { active = false; };
+  }, [path]);
+  if (!url) return null;
+  return <video src={url} muted playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" aria-hidden="true" />;
+}
