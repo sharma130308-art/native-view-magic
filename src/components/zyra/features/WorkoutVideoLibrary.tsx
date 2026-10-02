@@ -1,7 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  Film,
-  FolderUp,
   LoaderCircle,
   LogIn,
   Search,
@@ -29,16 +27,11 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
-type WorkoutVideo = Tables<"workout_videos">;
-type UploadState = { done: number; failed: number; total: number };
-
 const PAGE_SIZE = 12;
-const ALLOWED_TYPES = new Set(["video/mp4", "video/quicktime", "video/x-m4v", "video/webm"]);
 
 export const CATEGORIES = [
   { id: "favorites", label: "Favorites", icon: null },
@@ -62,16 +55,6 @@ type CategoryId = (typeof CATEGORIES)[number]["id"];
 
 function cleanTitle(filename: string) {
   return filename.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim() || "Workout video";
-}
-
-function safeFilename(filename: string) {
-  const extension = filename.split(".").pop()?.toLowerCase() ?? "mp4";
-  return `${crypto.randomUUID()}.${extension}`;
-}
-
-function formatSize(bytes: number) {
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export function WorkoutVideoLibrary() {
