@@ -23,7 +23,7 @@ const sections: [string, string][] = [
   ["Your choices", "You can edit or delete your routines at any time. To delete your account and all associated data, contact us at the email below and we will do so within 30 days."],
   ["Children", "ZyraFit is not directed at children under 13 and we do not knowingly collect their data."],
   ["Changes", "We may update this policy. Material changes will be announced in the app."],
-  ["Contact", "Questions or deletion requests: support@zyrafit.app"],
+  ["Contact", "Questions or deletion requests: zyrafitsupport@gmail.com"],
 ];
 
 function PrivacyPage() {
