@@ -1,5 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Film, FolderUp, LoaderCircle, LogIn, Play, Search, Trash2, X } from "lucide-react";
+import {
+  Activity,
+  Dumbbell,
+  Film,
+  FolderUp,
+  Heart,
+  LoaderCircle,
+  LogIn,
+  PersonStanding,
+  Play,
+  Search,
+  SlidersHorizontal,
+  Star,
+  Trash2,
+  X,
+  Zap,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +30,24 @@ type UploadState = { done: number; failed: number; total: number };
 
 const PAGE_SIZE = 12;
 const ALLOWED_TYPES = new Set(["video/mp4", "video/quicktime", "video/x-m4v", "video/webm"]);
+
+const CATEGORIES = [
+  { id: "favorites", label: "Favorites", icon: Star },
+  { id: "cardio", label: "Cardio", icon: Activity },
+  { id: "chest", label: "Chest", icon: Dumbbell },
+  { id: "back", label: "Back", icon: PersonStanding },
+  { id: "biceps", label: "Biceps", icon: Zap },
+  { id: "triceps", label: "Triceps", icon: Zap },
+  { id: "quadriceps", label: "Quadriceps", icon: PersonStanding },
+  { id: "hamstrings", label: "Hamstrings", icon: PersonStanding },
+  { id: "shoulders", label: "Shoulders", icon: Dumbbell },
+  { id: "calves", label: "Calves", icon: PersonStanding },
+  { id: "forearms", label: "Forearms", icon: Dumbbell },
+  { id: "neck", label: "Neck", icon: PersonStanding },
+  { id: "other", label: "Other", icon: Heart },
+] as const;
+
+type CategoryId = (typeof CATEGORIES)[number]["id"];
 
 function cleanTitle(filename: string) {
   return filename.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim() || "Workout video";
