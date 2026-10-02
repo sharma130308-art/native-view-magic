@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Screen } from "@/components/zyra/TabBar";
-import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 
 export const Route = createFileRoute("/splash")({
   head: () => ({

@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 
 import { Screen } from "@/components/zyra/TabBar";
-import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 
 export const Route = createFileRoute("/screens")({
   head: () => ({

@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Screen } from "@/components/zyra/TabBar";
-import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 
 export const Route = createFileRoute("/ready-to-start")({
   head: () => ({

@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BarChart3, Ban, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { Screen } from "@/components/zyra/TabBar";
-import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
