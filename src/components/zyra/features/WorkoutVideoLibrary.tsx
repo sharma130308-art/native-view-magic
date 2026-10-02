@@ -24,6 +24,9 @@ import calvesIcon from "@/assets/muscles/calves.png";
 import forearmsIcon from "@/assets/muscles/forearms.png";
 import neckIcon from "@/assets/muscles/neck.png";
 import otherIcon from "@/assets/muscles/other.png";
+import absIcon from "@/assets/muscles/abs.png";
+import hipsIcon from "@/assets/muscles/hips.png";
+import trapeziusIcon from "@/assets/muscles/trapezius.png";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
