@@ -51,6 +51,9 @@ const CATEGORIES = [
   { id: "shoulders", label: "Shoulders", icon: shouldersIcon },
   { id: "calves", label: "Calves", icon: calvesIcon },
   { id: "forearms", label: "Forearms", icon: forearmsIcon },
+  { id: "abs", label: "Abs", icon: otherIcon },
+  { id: "hips", label: "Hips", icon: hamstringsIcon },
+  { id: "trapezius", label: "Trapezius", icon: neckIcon },
   { id: "neck", label: "Neck", icon: neckIcon },
   { id: "other", label: "Other", icon: otherIcon },
 ] as const;
