@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChevronDown, X } from "lucide-react";
 import { useState } from "react";
+import { Screen } from "@/components/zyra/TabBar";
 
 export const Route = createFileRoute("/privacy-settings")({
   head: () => ({
@@ -43,7 +44,8 @@ function PrivacySettingsScreen() {
   const [profilingExpanded, setProfilingExpanded] = useState(false);
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-md flex-col bg-[#0A0A0A] text-white">
+    <Screen>
+    <div className="mx-auto flex min-h-svh w-full max-w-md flex-col bg-[#0A0A0A] text-white">
       <div className="flex items-center px-4 py-4">
         <button type="button" onClick={() => navigate({ to: "/privacy-consent" })} aria-label="Close">
           <X className="h-6 w-6 text-[#E0E0E0]" />
@@ -152,6 +154,7 @@ function PrivacySettingsScreen() {
           Accept All
         </button>
       </div>
-    </main>
+    </div>
+  </Screen>
   );
 }

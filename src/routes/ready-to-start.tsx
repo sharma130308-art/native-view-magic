@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Screen } from "@/components/zyra/TabBar";
 
 export const Route = createFileRoute("/ready-to-start")({
   head: () => ({
@@ -18,7 +19,8 @@ export const Route = createFileRoute("/ready-to-start")({
 
 function ReadyToStartScreen() {
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-md flex-col items-center justify-center bg-background px-8 text-center text-foreground">
+    <Screen>
+    <div className="mx-auto flex min-h-svh w-full max-w-md flex-col items-center justify-center bg-background px-8 text-center text-foreground">
       <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
         <Sparkles className="h-12 w-12 text-primary" />
       </div>
@@ -31,6 +33,7 @@ function ReadyToStartScreen() {
           <Button size="pill">Get Started</Button>
         </Link>
       </div>
-    </main>
+    </div>
+  </Screen>
   );
 }

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BarChart3, Ban, Sparkles, X } from "lucide-react";
 import { useState } from "react";
+import { Screen } from "@/components/zyra/TabBar";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -37,7 +38,8 @@ function PricingScreen() {
   const close = () => navigate({ to: "/home" });
 
   return (
-    <main className="relative mx-auto flex min-h-svh w-full max-w-md flex-col bg-background text-foreground">
+    <Screen>
+    <div className="relative mx-auto flex min-h-svh w-full max-w-md flex-col bg-background text-foreground">
       <div className="flex items-center justify-between px-4 pt-4">
         <button
           type="button"
@@ -116,7 +118,8 @@ function PricingScreen() {
           <span>Privacy</span>
         </div>
       </div>
-    </main>
+    </div>
+  </Screen>
   );
 }
 

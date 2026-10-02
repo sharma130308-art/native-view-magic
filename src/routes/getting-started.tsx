@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
+import { Screen } from "@/components/zyra/TabBar";
 
 export const Route = createFileRoute("/getting-started")({
   head: () => ({
@@ -17,7 +18,8 @@ export const Route = createFileRoute("/getting-started")({
 
 function GettingStartedScreen() {
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-md flex-col bg-white text-[#1A1A1A]">
+    <Screen>
+    <div className="mx-auto flex min-h-svh w-full max-w-md flex-col bg-white text-[#1A1A1A]">
       <div className="relative flex flex-[6] items-center justify-center">
         <span className="absolute left-[10%] top-[22%] text-xl font-light text-[#333]">×</span>
         <span className="absolute left-[6%] top-[28%] h-2 w-2 rounded-full border border-[#333]" />
@@ -60,6 +62,7 @@ function GettingStartedScreen() {
           receipt of our <span className="font-medium text-[#1A1A1A] underline">Privacy Policy</span>.
         </p>
       </div>
-    </main>
+    </div>
+  </Screen>
   );
 }

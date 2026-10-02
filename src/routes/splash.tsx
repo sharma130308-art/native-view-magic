@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Screen } from "@/components/zyra/TabBar";
 
 export const Route = createFileRoute("/splash")({
   head: () => ({
@@ -39,7 +40,8 @@ function SplashScreen() {
   }, [navigate]);
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-md flex-col items-center justify-center bg-background text-foreground">
+    <Screen>
+    <div className="mx-auto flex min-h-svh w-full max-w-md flex-col items-center justify-center bg-background text-foreground">
       <div className="flex flex-1 flex-col items-center justify-center gap-2">
         <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-primary text-primary-foreground text-4xl font-bold">
           Z
@@ -55,6 +57,7 @@ function SplashScreen() {
           />
         </div>
       </div>
-    </main>
+    </div>
+  </Screen>
   );
 }

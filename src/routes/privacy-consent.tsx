@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Screen } from "@/components/zyra/TabBar";
 
 export const Route = createFileRoute("/privacy-consent")({
   head: () => ({
@@ -18,7 +19,8 @@ function PrivacyConsentScreen() {
   const navigate = useNavigate();
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-md flex-col bg-[#0A0A0A] text-white">
+    <Screen>
+    <div className="mx-auto flex min-h-svh w-full max-w-md flex-col bg-[#0A0A0A] text-white">
       <div className="flex-1 overflow-y-auto px-6 pt-8">
         <p className="flex items-center gap-1.5 text-sm text-[#E0E0E0]">Welcome to ZyraFit <span>👋</span></p>
         <h1 className="mt-4 flex items-center gap-2 text-[1.75rem] font-bold leading-tight" style={{ fontFamily: "serif" }}>
@@ -63,6 +65,7 @@ function PrivacyConsentScreen() {
           Customize Preferences
         </button>
       </div>
-    </main>
+    </div>
+  </Screen>
   );
 }

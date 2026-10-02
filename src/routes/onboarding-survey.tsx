@@ -3,6 +3,7 @@ import { ChevronLeft, Check } from "lucide-react";
 import { useState } from "react";
 
 import { surveyQuestions } from "@/components/zyra/onboarding/surveyData";
+import { Screen } from "@/components/zyra/TabBar";
 
 export const Route = createFileRoute("/onboarding-survey")({
   head: () => ({
@@ -24,7 +25,7 @@ function OnboardingSurveyScreen() {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
 
   const total = surveyQuestions.length;
-  const question = surveyQuestions[index];
+  const question = surveyQuestions[index] ?? surveyQuestions[0]!;
   const isLast = index === total - 1;
 
   const answer = answers[question.id];
@@ -72,7 +73,8 @@ function OnboardingSurveyScreen() {
   const selectedMulti = Array.isArray(answer) ? answer : [];
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-md flex-col bg-background text-foreground">
+    <Screen>
+    <div className="mx-auto flex min-h-svh w-full max-w-md flex-col bg-background text-foreground">
       <div className="flex items-center gap-3 px-4 pb-2 pt-4">
         <button
           type="button"
@@ -148,6 +150,7 @@ function OnboardingSurveyScreen() {
           <div className="h-[44px]" />
         )}
       </div>
-    </main>
+    </div>
+  </Screen>
   );
 }
