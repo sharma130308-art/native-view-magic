@@ -7,6 +7,7 @@ import logAsset from "@/assets/onboarding-log.png.asset.json";
 import scanAsset from "@/assets/onboarding-scan.png.asset.json";
 import welcomeAsset from "@/assets/onboarding-welcome.png.asset.json";
 import { Button } from "@/components/ui/button";
+import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -98,7 +99,11 @@ function Index() {
               {current.eyebrow}
             </p>
           ) : null}
-          <h1 className="text-3xl font-bold leading-tight">{current.title}</h1>
+          {page === 0 ? (
+            <ZyraFitLogo className="mx-auto h-auto w-48" />
+          ) : (
+            <h1 className="text-3xl font-bold leading-tight">{current.title}</h1>
+          )}
           <p className="mx-auto mt-3 max-w-xs text-sm leading-6 text-muted-foreground">
             {current.description}
           </p>

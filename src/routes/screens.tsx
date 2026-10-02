@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 
 import { Screen } from "@/components/zyra/TabBar";
+import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 
 export const Route = createFileRoute("/screens")({
   head: () => ({
@@ -58,6 +59,7 @@ function Screens() {
   return (
     <Screen>
       <div className="px-5 py-6">
+        <ZyraFitLogo className="mb-5 h-auto w-40" />
         <h1 className="text-2xl font-bold">All screens</h1>
         <p className="mt-1 text-sm text-muted-foreground">Tap any screen to open it.</p>
         {groups.map((g) => (
