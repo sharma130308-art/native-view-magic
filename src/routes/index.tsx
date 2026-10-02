@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type TouchEvent } from "react";
+import { Link } from "@tanstack/react-router";
 
 import coachAsset from "@/assets/onboarding-coach.png.asset.json";
 import logAsset from "@/assets/onboarding-log.png.asset.json";
@@ -113,7 +114,13 @@ function Index() {
             />
           ))}
         </div>
-        <Button size="pill" onClick={goForward}>{page === pages.length - 1 ? "Continue" : "Next"}</Button>
+        {page === pages.length - 1 ? (
+          <Link to="/privacy-consent" className="block">
+            <Button size="pill">Continue</Button>
+          </Link>
+        ) : (
+          <Button size="pill" onClick={goForward}>Next</Button>
+        )}
       </footer>
     </main>
   );

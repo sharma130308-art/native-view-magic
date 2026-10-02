@@ -10,7 +10,25 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FoodLoggingRouteImport } from './routes/food-logging'
+import { Route as GettingStartedRouteImport } from './routes/getting-started'
+import { Route as HistoryRouteImport } from './routes/history'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as InsightsRouteImport } from './routes/insights'
+import { Route as MealDetailRouteImport } from './routes/meal-detail'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as OnboardingSurveyRouteImport } from './routes/onboarding-survey'
 import { Route as PreviewDoctorRouteImport } from './routes/preview-doctor'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyConsentRouteImport } from './routes/privacy-consent'
+import { Route as PrivacySettingsRouteImport } from './routes/privacy-settings'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PurchaseHistoryRouteImport } from './routes/purchase-history'
+import { Route as ReadyToStartRouteImport } from './routes/ready-to-start'
+import { Route as ScanRouteImport } from './routes/scan'
+import { Route as ScreensRouteImport } from './routes/screens'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SplashRouteImport } from './routes/splash'
 import { Route as ApiPreviewDoctorRouteImport } from './routes/api/preview-doctor'
 
 const IndexRoute = IndexRouteImport.update({
@@ -18,9 +36,99 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FoodLoggingRoute = FoodLoggingRouteImport.update({
+  id: '/food-logging',
+  path: '/food-logging',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GettingStartedRoute = GettingStartedRouteImport.update({
+  id: '/getting-started',
+  path: '/getting-started',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InsightsRoute = InsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MealDetailRoute = MealDetailRouteImport.update({
+  id: '/meal-detail',
+  path: '/meal-detail',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingSurveyRoute = OnboardingSurveyRouteImport.update({
+  id: '/onboarding-survey',
+  path: '/onboarding-survey',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PreviewDoctorRoute = PreviewDoctorRouteImport.update({
   id: '/preview-doctor',
   path: '/preview-doctor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyConsentRoute = PrivacyConsentRouteImport.update({
+  id: '/privacy-consent',
+  path: '/privacy-consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacySettingsRoute = PrivacySettingsRouteImport.update({
+  id: '/privacy-settings',
+  path: '/privacy-settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PurchaseHistoryRoute = PurchaseHistoryRouteImport.update({
+  id: '/purchase-history',
+  path: '/purchase-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadyToStartRoute = ReadyToStartRouteImport.update({
+  id: '/ready-to-start',
+  path: '/ready-to-start',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanRoute = ScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScreensRoute = ScreensRouteImport.update({
+  id: '/screens',
+  path: '/screens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SplashRoute = SplashRouteImport.update({
+  id: '/splash',
+  path: '/splash',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPreviewDoctorRoute = ApiPreviewDoctorRouteImport.update({
@@ -31,31 +139,167 @@ const ApiPreviewDoctorRoute = ApiPreviewDoctorRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/food-logging': typeof FoodLoggingRoute
+  '/getting-started': typeof GettingStartedRoute
+  '/history': typeof HistoryRoute
+  '/home': typeof HomeRoute
+  '/insights': typeof InsightsRoute
+  '/meal-detail': typeof MealDetailRoute
+  '/notifications': typeof NotificationsRoute
+  '/onboarding-survey': typeof OnboardingSurveyRoute
   '/preview-doctor': typeof PreviewDoctorRoute
+  '/pricing': typeof PricingRoute
+  '/privacy-consent': typeof PrivacyConsentRoute
+  '/privacy-settings': typeof PrivacySettingsRoute
+  '/profile': typeof ProfileRoute
+  '/purchase-history': typeof PurchaseHistoryRoute
+  '/ready-to-start': typeof ReadyToStartRoute
+  '/scan': typeof ScanRoute
+  '/screens': typeof ScreensRoute
+  '/settings': typeof SettingsRoute
+  '/splash': typeof SplashRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/food-logging': typeof FoodLoggingRoute
+  '/getting-started': typeof GettingStartedRoute
+  '/history': typeof HistoryRoute
+  '/home': typeof HomeRoute
+  '/insights': typeof InsightsRoute
+  '/meal-detail': typeof MealDetailRoute
+  '/notifications': typeof NotificationsRoute
+  '/onboarding-survey': typeof OnboardingSurveyRoute
   '/preview-doctor': typeof PreviewDoctorRoute
+  '/pricing': typeof PricingRoute
+  '/privacy-consent': typeof PrivacyConsentRoute
+  '/privacy-settings': typeof PrivacySettingsRoute
+  '/profile': typeof ProfileRoute
+  '/purchase-history': typeof PurchaseHistoryRoute
+  '/ready-to-start': typeof ReadyToStartRoute
+  '/scan': typeof ScanRoute
+  '/screens': typeof ScreensRoute
+  '/settings': typeof SettingsRoute
+  '/splash': typeof SplashRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/food-logging': typeof FoodLoggingRoute
+  '/getting-started': typeof GettingStartedRoute
+  '/history': typeof HistoryRoute
+  '/home': typeof HomeRoute
+  '/insights': typeof InsightsRoute
+  '/meal-detail': typeof MealDetailRoute
+  '/notifications': typeof NotificationsRoute
+  '/onboarding-survey': typeof OnboardingSurveyRoute
   '/preview-doctor': typeof PreviewDoctorRoute
+  '/pricing': typeof PricingRoute
+  '/privacy-consent': typeof PrivacyConsentRoute
+  '/privacy-settings': typeof PrivacySettingsRoute
+  '/profile': typeof ProfileRoute
+  '/purchase-history': typeof PurchaseHistoryRoute
+  '/ready-to-start': typeof ReadyToStartRoute
+  '/scan': typeof ScanRoute
+  '/screens': typeof ScreensRoute
+  '/settings': typeof SettingsRoute
+  '/splash': typeof SplashRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/preview-doctor' | '/api/preview-doctor'
+  fullPaths:
+    | '/'
+    | '/food-logging'
+    | '/getting-started'
+    | '/history'
+    | '/home'
+    | '/insights'
+    | '/meal-detail'
+    | '/notifications'
+    | '/onboarding-survey'
+    | '/preview-doctor'
+    | '/pricing'
+    | '/privacy-consent'
+    | '/privacy-settings'
+    | '/profile'
+    | '/purchase-history'
+    | '/ready-to-start'
+    | '/scan'
+    | '/screens'
+    | '/settings'
+    | '/splash'
+    | '/api/preview-doctor'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/preview-doctor' | '/api/preview-doctor'
-  id: '__root__' | '/' | '/preview-doctor' | '/api/preview-doctor'
+  to:
+    | '/'
+    | '/food-logging'
+    | '/getting-started'
+    | '/history'
+    | '/home'
+    | '/insights'
+    | '/meal-detail'
+    | '/notifications'
+    | '/onboarding-survey'
+    | '/preview-doctor'
+    | '/pricing'
+    | '/privacy-consent'
+    | '/privacy-settings'
+    | '/profile'
+    | '/purchase-history'
+    | '/ready-to-start'
+    | '/scan'
+    | '/screens'
+    | '/settings'
+    | '/splash'
+    | '/api/preview-doctor'
+  id:
+    | '__root__'
+    | '/'
+    | '/food-logging'
+    | '/getting-started'
+    | '/history'
+    | '/home'
+    | '/insights'
+    | '/meal-detail'
+    | '/notifications'
+    | '/onboarding-survey'
+    | '/preview-doctor'
+    | '/pricing'
+    | '/privacy-consent'
+    | '/privacy-settings'
+    | '/profile'
+    | '/purchase-history'
+    | '/ready-to-start'
+    | '/scan'
+    | '/screens'
+    | '/settings'
+    | '/splash'
+    | '/api/preview-doctor'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FoodLoggingRoute: typeof FoodLoggingRoute
+  GettingStartedRoute: typeof GettingStartedRoute
+  HistoryRoute: typeof HistoryRoute
+  HomeRoute: typeof HomeRoute
+  InsightsRoute: typeof InsightsRoute
+  MealDetailRoute: typeof MealDetailRoute
+  NotificationsRoute: typeof NotificationsRoute
+  OnboardingSurveyRoute: typeof OnboardingSurveyRoute
   PreviewDoctorRoute: typeof PreviewDoctorRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyConsentRoute: typeof PrivacyConsentRoute
+  PrivacySettingsRoute: typeof PrivacySettingsRoute
+  ProfileRoute: typeof ProfileRoute
+  PurchaseHistoryRoute: typeof PurchaseHistoryRoute
+  ReadyToStartRoute: typeof ReadyToStartRoute
+  ScanRoute: typeof ScanRoute
+  ScreensRoute: typeof ScreensRoute
+  SettingsRoute: typeof SettingsRoute
+  SplashRoute: typeof SplashRoute
   ApiPreviewDoctorRoute: typeof ApiPreviewDoctorRoute
 }
 
@@ -68,11 +312,137 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/food-logging': {
+      id: '/food-logging'
+      path: '/food-logging'
+      fullPath: '/food-logging'
+      preLoaderRoute: typeof FoodLoggingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/getting-started': {
+      id: '/getting-started'
+      path: '/getting-started'
+      fullPath: '/getting-started'
+      preLoaderRoute: typeof GettingStartedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/insights': {
+      id: '/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof InsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meal-detail': {
+      id: '/meal-detail'
+      path: '/meal-detail'
+      fullPath: '/meal-detail'
+      preLoaderRoute: typeof MealDetailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding-survey': {
+      id: '/onboarding-survey'
+      path: '/onboarding-survey'
+      fullPath: '/onboarding-survey'
+      preLoaderRoute: typeof OnboardingSurveyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/preview-doctor': {
       id: '/preview-doctor'
       path: '/preview-doctor'
       fullPath: '/preview-doctor'
       preLoaderRoute: typeof PreviewDoctorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-consent': {
+      id: '/privacy-consent'
+      path: '/privacy-consent'
+      fullPath: '/privacy-consent'
+      preLoaderRoute: typeof PrivacyConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-settings': {
+      id: '/privacy-settings'
+      path: '/privacy-settings'
+      fullPath: '/privacy-settings'
+      preLoaderRoute: typeof PrivacySettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/purchase-history': {
+      id: '/purchase-history'
+      path: '/purchase-history'
+      fullPath: '/purchase-history'
+      preLoaderRoute: typeof PurchaseHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ready-to-start': {
+      id: '/ready-to-start'
+      path: '/ready-to-start'
+      fullPath: '/ready-to-start'
+      preLoaderRoute: typeof ReadyToStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scan': {
+      id: '/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof ScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/screens': {
+      id: '/screens'
+      path: '/screens'
+      fullPath: '/screens'
+      preLoaderRoute: typeof ScreensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/splash': {
+      id: '/splash'
+      path: '/splash'
+      fullPath: '/splash'
+      preLoaderRoute: typeof SplashRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/preview-doctor': {
@@ -87,7 +457,25 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FoodLoggingRoute: FoodLoggingRoute,
+  GettingStartedRoute: GettingStartedRoute,
+  HistoryRoute: HistoryRoute,
+  HomeRoute: HomeRoute,
+  InsightsRoute: InsightsRoute,
+  MealDetailRoute: MealDetailRoute,
+  NotificationsRoute: NotificationsRoute,
+  OnboardingSurveyRoute: OnboardingSurveyRoute,
   PreviewDoctorRoute: PreviewDoctorRoute,
+  PricingRoute: PricingRoute,
+  PrivacyConsentRoute: PrivacyConsentRoute,
+  PrivacySettingsRoute: PrivacySettingsRoute,
+  ProfileRoute: ProfileRoute,
+  PurchaseHistoryRoute: PurchaseHistoryRoute,
+  ReadyToStartRoute: ReadyToStartRoute,
+  ScanRoute: ScanRoute,
+  ScreensRoute: ScreensRoute,
+  SettingsRoute: SettingsRoute,
+  SplashRoute: SplashRoute,
   ApiPreviewDoctorRoute: ApiPreviewDoctorRoute,
 }
 export const routeTree = rootRouteImport
