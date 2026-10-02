@@ -1,0 +1,2 @@
+ALTER TABLE public.workout_videos ADD COLUMN category text NOT NULL DEFAULT 'other';
+COMMENT ON COLUMN public.workout_videos.category IS 'Muscle group or workout type: favorites, cardio, chest, back, biceps, triceps, quadriceps, hamstrings, shoulders, calves, forearms, neck, other';

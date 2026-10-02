@@ -15,6 +15,13 @@
       "when": 1790956208610,
       "tag": "0001_shared_workout_library",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790956378134,
+      "tag": "0002_add_workout_video_category",
+      "breakpoints": true
     }
   ]
 }
