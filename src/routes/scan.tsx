@@ -266,7 +266,7 @@ function PhotoCaptureView() {
         {!photo && !live && (
           <button
             type="button"
-            onClick={() => (navigator.mediaDevices?.getUserMedia ? void startCamera() : inputRef.current?.click())}
+            onClick={() => ("mediaDevices" in navigator ? void startCamera() : inputRef.current?.click())}
             className="flex h-40 w-40 items-center justify-center rounded-full border-2 border-dashed border-white/40"
             aria-label="Open camera"
           >
