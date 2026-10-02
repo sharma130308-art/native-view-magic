@@ -290,7 +290,7 @@ export function WorkoutVideoLibrary() {
         </div>
       ) : null}
 
-      {userId && videos.length > 0 ? (
+      {userId ? (
         <>
           <div className="-mx-4 mt-3 flex gap-1 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Workout categories">
             {CATEGORIES.map(({ id, label, icon: Icon }) => {
