@@ -21,7 +21,7 @@ function ReadyToStartScreen() {
   return (
     <Screen>
     <div className="mx-auto flex min-h-svh w-full max-w-md flex-col items-center justify-center bg-background px-8 text-center text-foreground">
-      <ZyraFitLogo compact className="h-16 w-16" />
+      <span className="text-3xl font-extrabold tracking-tight text-foreground">ZyraFit</span>
       <h1 className="mt-8 text-3xl font-bold leading-tight">You're all set!</h1>
       <p className="mx-auto mt-3 max-w-xs text-sm leading-6 text-muted-foreground">
         Your personalized nutrition plan is ready. Let's start tracking your meals and reaching your goals.
