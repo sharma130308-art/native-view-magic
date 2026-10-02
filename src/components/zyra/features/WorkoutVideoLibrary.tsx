@@ -60,12 +60,10 @@ function cleanTitle(filename: string) {
 }
 
 export function WorkoutVideoLibrary() {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [videos, setVideos] = useState<WorkoutVideo[]>([]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [upload, setUpload] = useState<UploadState | null>(null);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<{ video: WorkoutVideo; url: string } | null>(null);
   const [showSignIn, setShowSignIn] = useState(false);
@@ -74,7 +72,6 @@ export function WorkoutVideoLibrary() {
   const [authBusy, setAuthBusy] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [category, setCategory] = useState<CategoryId | "all">("all");
-  const [uploadCategory, setUploadCategory] = useState<CategoryId>("chest");
   const [favorites, setFavorites] = useState<Set<string>>(() => {
     try {
       return new Set(JSON.parse(localStorage.getItem("zyrafit-video-favorites") ?? "[]") as string[]);
