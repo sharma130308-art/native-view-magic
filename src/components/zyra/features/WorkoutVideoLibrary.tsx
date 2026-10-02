@@ -180,52 +180,6 @@ export function WorkoutVideoLibrary() {
 
   return (
     <section className="mt-6">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="video/mp4,video/quicktime,video/x-m4v,video/webm"
-        multiple
-        className="hidden"
-        aria-label="Choose workout video folder"
-        onChange={(event) => {
-          void uploadFiles(Array.from(event.target.files ?? []));
-          event.target.value = "";
-        }}
-        {...({ webkitdirectory: "", directory: "" } as Record<string, string>)}
-      />
-
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">{userId ? `${videos.length} workout videos` : "Sign in to watch workout videos"}</p>
-        {isAdmin ? (
-          <div className="flex items-center gap-2">
-            <select
-              value={uploadCategory}
-              onChange={(event) => setUploadCategory(event.target.value as CategoryId)}
-              className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
-              aria-label="Category for uploaded videos"
-            >
-              {CATEGORIES.filter(({ id }) => id !== "favorites").map(({ id, label }) => (
-                <option key={id} value={id}>{label}</option>
-              ))}
-            </select>
-            <Button size="sm" className="gap-2" onClick={chooseFolder} disabled={upload !== null && upload.done + upload.failed < upload.total}>
-              {upload && upload.done + upload.failed < upload.total ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FolderUp className="h-4 w-4" />}
-              Add folder
-            </Button>
-          </div>
-        ) : null}
-      </div>
-
-      {upload ? (
-        <div className="mt-3 rounded-lg border border-border bg-card p-3">
-          <div className="mb-2 flex justify-between text-xs text-muted-foreground">
-            <span>{upload.done + upload.failed} of {upload.total}</span>
-            <span>{upload.failed ? `${upload.failed} failed` : "Uploading"}</span>
-          </div>
-          <Progress value={((upload.done + upload.failed) / upload.total) * 100} />
-        </div>
-      ) : null}
-
       {userId ? (
         <>
           <div className="-mx-4 mt-3 flex gap-1 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Workout categories">
