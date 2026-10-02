@@ -326,7 +326,19 @@ export function WorkoutVideoLibrary() {
                 </button>
               );
             })}
-
+            <button
+              type="button"
+              role="tab"
+              aria-selected={category === "all" && !query}
+              onClick={() => { setCategory("all"); setQuery(""); setPage(1); }}
+              className="flex w-16 shrink-0 flex-col items-center gap-1.5 rounded-lg py-2"
+              aria-label="Show all videos"
+            >
+              <span className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${category === "all" && !query ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"}`}>
+                <LayoutGrid className="h-5 w-5" />
+              </span>
+              <span className={`text-[10px] font-medium leading-tight ${category === "all" && !query ? "text-primary" : "text-muted-foreground"}`}>All</span>
+            </button>
           </div>
           <div className="relative mt-2">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
