@@ -5,7 +5,7 @@ import {
   LoaderCircle,
   LogIn,
   Search,
-  SlidersHorizontal,
+  Folder,
   Star,
   Trash2,
   X,
@@ -22,7 +22,6 @@ import shouldersIcon from "@/assets/muscles/shoulders.png";
 import calvesIcon from "@/assets/muscles/calves.png";
 import forearmsIcon from "@/assets/muscles/forearms.png";
 import neckIcon from "@/assets/muscles/neck.png";
-import otherIcon from "@/assets/muscles/other.png";
 import absIcon from "@/assets/muscles/abs.png";
 import hipsIcon from "@/assets/muscles/hips.png";
 import trapeziusIcon from "@/assets/muscles/trapezius.png";
@@ -57,7 +56,6 @@ export const CATEGORIES = [
   { id: "hips", label: "Hips", icon: hipsIcon },
   { id: "trapezius", label: "Trapezius", icon: trapeziusIcon },
   { id: "neck", label: "Neck", icon: neckIcon },
-  { id: "other", label: "Other", icon: otherIcon },
 ] as const;
 
 type CategoryId = (typeof CATEGORIES)[number]["id"];
@@ -91,7 +89,7 @@ export function WorkoutVideoLibrary() {
   const [authBusy, setAuthBusy] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [category, setCategory] = useState<CategoryId | "all">("all");
-  const [uploadCategory, setUploadCategory] = useState<CategoryId>("other");
+  const [uploadCategory, setUploadCategory] = useState<CategoryId>("chest");
   const [favorites, setFavorites] = useState<Set<string>>(() => {
     try {
       return new Set(JSON.parse(localStorage.getItem("zyrafit-video-favorites") ?? "[]") as string[]);
@@ -306,6 +304,17 @@ export function WorkoutVideoLibrary() {
       {userId ? (
         <>
           <div className="-mx-4 mt-3 flex gap-1 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Workout categories">
+            <button
+              type="button"
+              onClick={() => { setCategory("all"); setQuery(""); setPage(1); }}
+              className="flex w-16 shrink-0 flex-col items-center gap-1.5 rounded-lg py-2"
+              aria-label="Show all videos"
+            >
+              <span className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${category === "all" && !query ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"}`}>
+                <Folder className="h-5 w-5" />
+              </span>
+              <span className={`text-[10px] font-medium leading-tight ${category === "all" && !query ? "text-primary" : "text-muted-foreground"}`}>{videos.length} videos</span>
+            </button>
             {CATEGORIES.map(({ id, label, icon }) => {
               const active = category === id;
               return (
@@ -328,17 +337,7 @@ export function WorkoutVideoLibrary() {
                 </button>
               );
             })}
-            <button
-              type="button"
-              onClick={() => { setCategory("all"); setQuery(""); setPage(1); }}
-              className="flex w-16 shrink-0 flex-col items-center gap-1.5 rounded-lg py-2"
-              aria-label="Show all videos"
-            >
-              <span className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${category === "all" && !query ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"}`}>
-                <SlidersHorizontal className="h-5 w-5" />
-              </span>
-              <span className={`text-[10px] font-medium leading-tight ${category === "all" && !query ? "text-primary" : "text-muted-foreground"}`}>All</span>
-            </button>
+
           </div>
           <div className="relative mt-2">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
