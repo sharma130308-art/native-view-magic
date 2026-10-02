@@ -4,7 +4,6 @@ import {
   FolderUp,
   LoaderCircle,
   LogIn,
-  Play,
   Search,
   SlidersHorizontal,
   Star,
@@ -357,13 +356,8 @@ export function WorkoutVideoLibrary() {
               <article key={video.id} className="overflow-hidden rounded-lg border border-border bg-card">
                 <button type="button" onClick={() => void playVideo(video)} className="relative flex aspect-video w-full items-center justify-center overflow-hidden bg-secondary" aria-label={`Play ${video.title}`}>
                   <VideoThumb path={video.storage_path} />
-                  <span className="absolute flex h-10 w-10 items-center justify-center rounded-full bg-primary/90 text-primary-foreground shadow"><Play className="h-4 w-4" fill="currentColor" /></span>
-                 </button>
-                <div className="flex items-start gap-1 p-2.5">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-foreground">{video.title}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">{formatSize(video.file_size)}</p>
-                  </div>
+                </button>
+                <div className="flex items-center justify-end gap-0.5 px-1 py-0.5">
                   <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => toggleFavorite(video.id)} aria-label={favorites.has(video.id) ? `Remove ${video.title} from favorites` : `Add ${video.title} to favorites`}>
                     <Star className={`h-4 w-4 ${favorites.has(video.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
                   </Button>
