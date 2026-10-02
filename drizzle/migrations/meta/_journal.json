@@ -29,6 +29,20 @@
       "when": 1790957981759,
       "tag": "0003_workout_routines",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790958452422,
+      "tag": "0004_routine_sharing",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790958462081,
+      "tag": "0005_routine_owner_lock",
+      "breakpoints": true
     }
   ]
 }

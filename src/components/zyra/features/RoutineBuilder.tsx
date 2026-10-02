@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronLeft, ChevronRight, ListPlus, LoaderCircle, Play, Plus, Trash2, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, ListPlus, LoaderCircle, Pencil, Play, Plus, Trash2, UserPlus, Users, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,11 @@ export function RoutineBuilder() {
   const [cat, setCat] = useState<string>("chest");
   const [picked, setPicked] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [shareFor, setShareFor] = useState<Routine | null>(null);
+  const [invites, setInvites] = useState<{ id: string; email: string }[]>([]);
+  const [inviteEmail, setInviteEmail] = useState("");
   const [player, setPlayer] = useState<{ routine: Routine; index: number; url: string | null } | null>(null);
 
   useEffect(() => {
@@ -33,10 +38,12 @@ export function RoutineBuilder() {
       if (!active) return;
       setUserId(id);
       if (!id) return setLoading(false);
-      const [v, r] = await Promise.all([
+      const [v, r, a] = await Promise.all([
         supabase.from("workout_videos").select("id,title,category,storage_path").order("title").limit(2000),
         supabase.from("workout_routines").select("*").order("created_at", { ascending: false }),
+        supabase.rpc("has_role", { _user_id: id, _role: "admin" }),
       ]);
+      setIsAdmin(!!a.data);
       if (!active) return;
       setVideos(v.data ?? []);
       setRoutines(r.data ?? []);
@@ -57,14 +64,14 @@ export function RoutineBuilder() {
     if (!userId) return;
     if (!name.trim() || picked.length === 0) { toast.error("Add a name and at least one video"); return; }
     setSaving(true);
-    const { data, error } = await supabase
-      .from("workout_routines")
-      .insert({ user_id: userId, name: name.trim(), video_ids: picked })
-      .select()
-      .single();
+    const q = editId
+      ? supabase.from("workout_routines").update({ name: name.trim(), video_ids: picked }).eq("id", editId)
+      : supabase.from("workout_routines").insert({ user_id: userId, name: name.trim(), video_ids: picked });
+    const { data, error } = await q.select().single();
     setSaving(false);
     if (error || !data) { toast.error("Could not save routine"); return; }
-    setRoutines((r) => [data, ...r]);
+    setRoutines((r) => (editId ? r.map((x) => (x.id === data.id ? data : x)) : [data, ...r]));
+    setEditId(null);
     setEditing(false);
     setName("");
     setPicked([]);
@@ -75,6 +82,36 @@ export function RoutineBuilder() {
     const { error } = await supabase.from("workout_routines").delete().eq("id", id);
     if (error) { toast.error("Could not delete"); return; }
     setRoutines((r) => r.filter((x) => x.id !== id));
+  }
+
+  function startEdit(r: Routine) {
+    setEditId(r.id);
+    setName(r.name);
+    setPicked(r.video_ids);
+    setEditing(true);
+  }
+
+  async function openShare(r: Routine) {
+    setShareFor(r);
+    setInviteEmail("");
+    const { data } = await supabase.from("workout_routine_invites").select("id,email").eq("routine_id", r.id).order("created_at");
+    setInvites(data ?? []);
+  }
+
+  async function invite() {
+    const email = inviteEmail.trim().toLowerCase();
+    if (!shareFor || !/^\S+@\S+\.\S+$/.test(email)) { toast.error("Enter a valid email"); return; }
+    const { data, error } = await supabase.from("workout_routine_invites").insert({ routine_id: shareFor.id, email }).select("id,email").single();
+    if (error || !data) { toast.error(error?.code === "23505" ? "Already invited" : "Could not invite"); return; }
+    setInvites((i) => [...i, data]);
+    setInviteEmail("");
+    toast.success(`${email} can now edit this routine`);
+  }
+
+  async function uninvite(id: string) {
+    const { error } = await supabase.from("workout_routine_invites").delete().eq("id", id);
+    if (error) { toast.error("Could not remove"); return; }
+    setInvites((i) => i.filter((x) => x.id !== id));
   }
 
   async function playAt(routine: Routine, index: number) {
@@ -92,7 +129,7 @@ export function RoutineBuilder() {
     return (
       <div className="mt-4 space-y-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => setEditing(false)} aria-label="Back"><ChevronLeft /></Button>
+          <Button variant="ghost" size="icon" onClick={() => { setEditing(false); setEditId(null); setName(""); setPicked([]); }} aria-label="Back"><ChevronLeft /></Button>
           <Input placeholder="Routine name, e.g. Push day" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
@@ -152,12 +189,44 @@ export function RoutineBuilder() {
         <div key={r.id} className="flex items-center gap-3 rounded-xl border border-border p-3">
           <div className="min-w-0 flex-1">
             <p className="truncate font-semibold text-foreground">{r.name}</p>
-            <p className="text-xs text-muted-foreground">{r.video_ids.length} exercises</p>
+            <p className="flex items-center gap-1 text-xs text-muted-foreground">
+              {r.video_ids.length} exercises
+              {r.user_id !== userId && <><Users className="ml-1 h-3 w-3" /> {isAdmin ? "Member's routine" : "Shared with you"}</>}
+            </p>
           </div>
           <Button size="icon" onClick={() => playAt(r, 0)} aria-label="Start"><Play /></Button>
-          <Button size="icon" variant="ghost" onClick={() => remove(r.id)} aria-label="Delete"><Trash2 /></Button>
+          <Button size="icon" variant="ghost" onClick={() => startEdit(r)} aria-label="Edit"><Pencil /></Button>
+          {(r.user_id === userId || isAdmin) && (
+            <>
+              <Button size="icon" variant="ghost" onClick={() => openShare(r)} aria-label="Share"><UserPlus /></Button>
+              <Button size="icon" variant="ghost" onClick={() => remove(r.id)} aria-label="Delete"><Trash2 /></Button>
+            </>
+          )}
         </div>
       ))}
+
+      {shareFor && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 sm:items-center" onClick={() => setShareFor(null)}>
+          <div className="w-full max-w-md space-y-3 rounded-t-2xl border border-border bg-card p-4 sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <p className="font-semibold text-foreground">Build "{shareFor.name}" together</p>
+              <Button size="icon" variant="ghost" onClick={() => setShareFor(null)} aria-label="Close"><X /></Button>
+            </div>
+            <p className="text-xs text-muted-foreground">Invited members can add, remove and reorder exercises. They sign in with this email.</p>
+            <div className="flex gap-2">
+              <Input type="email" placeholder="friend@email.com" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} onKeyDown={(e) => e.key === "Enter" && invite()} />
+              <Button onClick={invite}><UserPlus /> Invite</Button>
+            </div>
+            {invites.length === 0 && <p className="py-2 text-center text-sm text-muted-foreground">Nobody invited yet.</p>}
+            {invites.map((i) => (
+              <div key={i.id} className="flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-sm">
+                <span className="truncate text-foreground">{i.email}</span>
+                <button onClick={() => uninvite(i.id)} aria-label="Remove"><X className="h-4 w-4 text-muted-foreground" /></button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {player && (
         <div className="fixed inset-0 z-50 flex flex-col bg-background">

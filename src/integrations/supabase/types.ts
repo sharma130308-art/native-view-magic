@@ -32,6 +32,35 @@ export type Database = {
         }
         Relationships: []
       }
+      workout_routine_invites: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          routine_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          routine_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          routine_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_routine_invites_routine_id_fkey"
+            columns: ["routine_id"]
+            isOneToOne: false
+            referencedRelation: "workout_routines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workout_routines: {
         Row: {
           created_at: string
@@ -101,6 +130,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_routine_invitee: { Args: { _rid: string }; Returns: boolean }
+      is_routine_owner: { Args: { _rid: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
