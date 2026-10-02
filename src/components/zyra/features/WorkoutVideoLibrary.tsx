@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Film,
-  FolderUp,
   LoaderCircle,
-  LogIn,
-  Search,
-  Folder,
+  LayoutGrid,
   Star,
   Trash2,
   X,
