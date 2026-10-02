@@ -259,10 +259,7 @@ export function WorkoutVideoLibrary() {
       />
 
       <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-base font-bold text-foreground">Videos</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">{userId ? `${videos.length} workout videos` : "Sign in to watch workout videos"}</p>
-        </div>
+        <p className="text-xs text-muted-foreground">{userId ? `${videos.length} workout videos` : "Sign in to watch workout videos"}</p>
         {isAdmin ? (
           <div className="flex items-center gap-2">
             <select
