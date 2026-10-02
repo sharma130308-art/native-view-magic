@@ -29,6 +29,7 @@ import { Route as ScanRouteImport } from './routes/scan'
 import { Route as ScreensRouteImport } from './routes/screens'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SplashRouteImport } from './routes/splash'
+import { Route as WorkoutRouteImport } from './routes/workout'
 import { Route as ApiPreviewDoctorRouteImport } from './routes/api/preview-doctor'
 
 const IndexRoute = IndexRouteImport.update({
@@ -131,6 +132,11 @@ const SplashRoute = SplashRouteImport.update({
   path: '/splash',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkoutRoute = WorkoutRouteImport.update({
+  id: '/workout',
+  path: '/workout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPreviewDoctorRoute = ApiPreviewDoctorRouteImport.update({
   id: '/api/preview-doctor',
   path: '/api/preview-doctor',
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/splash': typeof SplashRoute
+  '/workout': typeof WorkoutRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRoutesByTo {
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/splash': typeof SplashRoute
+  '/workout': typeof WorkoutRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRoutesById {
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/splash': typeof SplashRoute
+  '/workout': typeof WorkoutRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRouteTypes {
@@ -230,6 +239,7 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/splash'
+    | '/workout'
     | '/api/preview-doctor'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/splash'
+    | '/workout'
     | '/api/preview-doctor'
   id:
     | '__root__'
@@ -276,6 +287,7 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/splash'
+    | '/workout'
     | '/api/preview-doctor'
   fileRoutesById: FileRoutesById
 }
@@ -300,6 +312,7 @@ export interface RootRouteChildren {
   ScreensRoute: typeof ScreensRoute
   SettingsRoute: typeof SettingsRoute
   SplashRoute: typeof SplashRoute
+  WorkoutRoute: typeof WorkoutRoute
   ApiPreviewDoctorRoute: typeof ApiPreviewDoctorRoute
 }
 
@@ -445,6 +458,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplashRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workout': {
+      id: '/workout'
+      path: '/workout'
+      fullPath: '/workout'
+      preLoaderRoute: typeof WorkoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/preview-doctor': {
       id: '/api/preview-doctor'
       path: '/api/preview-doctor'
@@ -476,6 +496,7 @@ const rootRouteChildren: RootRouteChildren = {
   ScreensRoute: ScreensRoute,
   SettingsRoute: SettingsRoute,
   SplashRoute: SplashRoute,
+  WorkoutRoute: WorkoutRoute,
   ApiPreviewDoctorRoute: ApiPreviewDoctorRoute,
 }
 export const routeTree = rootRouteImport

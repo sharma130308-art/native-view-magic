@@ -1,16 +1,16 @@
 import { Link } from "@tanstack/react-router";
-import { BarChart3, History, Home, ScanLine, User } from "lucide-react";
+import { BarChart3, Dumbbell, Home, ScanLine, User } from "lucide-react";
 
-type Tab = "home" | "history" | "insights" | "profile";
+type Tab = "home" | "workout" | "insights" | "profile";
 
 const tabs = [
   { key: "home", label: "Home", to: "/home", Icon: Home },
-  { key: "history", label: "History", to: "/history", Icon: History },
+  { key: "workout", label: "Workout", to: "/workout", Icon: Dumbbell },
   { key: "insights", label: "Insights", to: "/insights", Icon: BarChart3 },
   { key: "profile", label: "Profile", to: "/profile", Icon: User },
 ] as const;
 
-/** Mirrors Flutter MainTabBar: Home · History · [Scan] · Insights · Profile. */
+/** Main navigation: Home · Workout · [Scan] · Insights · Profile. */
 export function TabBar({ active }: { active: Tab }) {
   const item = (t: (typeof tabs)[number]) => (
     <Link

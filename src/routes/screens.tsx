@@ -35,7 +35,7 @@ const groups = [
     name: "Main tabs",
     items: [
       ["/home", "Home"],
-      ["/history", "History"],
+      ["/workout", "Workout"],
       ["/scan", "Scan"],
       ["/insights", "Insights"],
       ["/profile", "Profile"],
@@ -44,6 +44,7 @@ const groups = [
   {
     name: "More",
     items: [
+      ["/history", "History"],
       ["/food-logging", "Food Logging"],
       ["/meal-detail", "Meal Detail"],
       ["/notifications", "Notifications"],

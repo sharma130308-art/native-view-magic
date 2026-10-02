@@ -28,7 +28,7 @@ const logs: DayLog[] = [
 
 function HistoryScreen() {
   return (
-    <Screen tab="history">
+    <Screen>
       <AppHeader />
       <div className="px-4 pb-6 pt-1">
         <div className="flex items-center justify-between">
