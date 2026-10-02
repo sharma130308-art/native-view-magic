@@ -1,21 +1,29 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Activity,
-  Dumbbell,
   Film,
   FolderUp,
-  Heart,
   LoaderCircle,
   LogIn,
-  PersonStanding,
   Play,
   Search,
   SlidersHorizontal,
   Star,
   Trash2,
   X,
-  Zap,
 } from "lucide-react";
+
+import cardioIcon from "@/assets/muscles/cardio.png";
+import chestIcon from "@/assets/muscles/chest.png";
+import backIcon from "@/assets/muscles/back.png";
+import bicepsIcon from "@/assets/muscles/biceps.png";
+import tricepsIcon from "@/assets/muscles/triceps.png";
+import quadricepsIcon from "@/assets/muscles/quadriceps.png";
+import hamstringsIcon from "@/assets/muscles/hamstrings.png";
+import shouldersIcon from "@/assets/muscles/shoulders.png";
+import calvesIcon from "@/assets/muscles/calves.png";
+import forearmsIcon from "@/assets/muscles/forearms.png";
+import neckIcon from "@/assets/muscles/neck.png";
+import otherIcon from "@/assets/muscles/other.png";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -32,19 +40,19 @@ const PAGE_SIZE = 12;
 const ALLOWED_TYPES = new Set(["video/mp4", "video/quicktime", "video/x-m4v", "video/webm"]);
 
 const CATEGORIES = [
-  { id: "favorites", label: "Favorites", icon: Star },
-  { id: "cardio", label: "Cardio", icon: Activity },
-  { id: "chest", label: "Chest", icon: Dumbbell },
-  { id: "back", label: "Back", icon: PersonStanding },
-  { id: "biceps", label: "Biceps", icon: Zap },
-  { id: "triceps", label: "Triceps", icon: Zap },
-  { id: "quadriceps", label: "Quadriceps", icon: PersonStanding },
-  { id: "hamstrings", label: "Hamstrings", icon: PersonStanding },
-  { id: "shoulders", label: "Shoulders", icon: Dumbbell },
-  { id: "calves", label: "Calves", icon: PersonStanding },
-  { id: "forearms", label: "Forearms", icon: Dumbbell },
-  { id: "neck", label: "Neck", icon: PersonStanding },
-  { id: "other", label: "Other", icon: Heart },
+  { id: "favorites", label: "Favorites", icon: null },
+  { id: "cardio", label: "Cardio", icon: cardioIcon },
+  { id: "chest", label: "Chest", icon: chestIcon },
+  { id: "back", label: "Back", icon: backIcon },
+  { id: "biceps", label: "Biceps", icon: bicepsIcon },
+  { id: "triceps", label: "Triceps", icon: tricepsIcon },
+  { id: "quadriceps", label: "Quadriceps", icon: quadricepsIcon },
+  { id: "hamstrings", label: "Hamstrings", icon: hamstringsIcon },
+  { id: "shoulders", label: "Shoulders", icon: shouldersIcon },
+  { id: "calves", label: "Calves", icon: calvesIcon },
+  { id: "forearms", label: "Forearms", icon: forearmsIcon },
+  { id: "neck", label: "Neck", icon: neckIcon },
+  { id: "other", label: "Other", icon: otherIcon },
 ] as const;
 
 type CategoryId = (typeof CATEGORIES)[number]["id"];
@@ -293,7 +301,7 @@ export function WorkoutVideoLibrary() {
       {userId ? (
         <>
           <div className="-mx-4 mt-3 flex gap-1 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Workout categories">
-            {CATEGORIES.map(({ id, label, icon: Icon }) => {
+            {CATEGORIES.map(({ id, label, icon }) => {
               const active = category === id;
               return (
                 <button
@@ -305,7 +313,11 @@ export function WorkoutVideoLibrary() {
                   className="flex w-16 shrink-0 flex-col items-center gap-1.5 rounded-lg py-2"
                 >
                   <span className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"}`}>
-                    <Icon className="h-5 w-5" />
+                    {icon ? (
+                      <img src={icon} alt="" loading="lazy" className="h-9 w-9 object-contain" />
+                    ) : (
+                      <Star className="h-5 w-5" />
+                    )}
                   </span>
                   <span className={`text-[10px] font-medium leading-tight ${active ? "text-primary" : "text-muted-foreground"}`}>{label}</span>
                 </button>
