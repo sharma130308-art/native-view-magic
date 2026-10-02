@@ -77,6 +77,25 @@ export function WorkoutVideoLibrary() {
   const [password, setPassword] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [category, setCategory] = useState<CategoryId | "all">("all");
+  const [uploadCategory, setUploadCategory] = useState<CategoryId>("other");
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem("zyrafit-video-favorites") ?? "[]") as string[]);
+    } catch {
+      return new Set();
+    }
+  });
+
+  const toggleFavorite = (id: string) => {
+    setFavorites((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      localStorage.setItem("zyrafit-video-favorites", JSON.stringify([...next]));
+      return next;
+    });
+  };
 
   const loadVideos = async (id: string) => {
     setLoading(true);
@@ -120,8 +139,12 @@ export function WorkoutVideoLibrary() {
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
-    return term ? videos.filter((video) => video.title.toLowerCase().includes(term)) : videos;
-  }, [query, videos]);
+    return videos.filter((video) => {
+      if (category === "favorites" && !favorites.has(video.id)) return false;
+      if (category !== "all" && category !== "favorites" && video.category !== category) return false;
+      return term ? video.title.toLowerCase().includes(term) : true;
+    });
+  }, [query, videos, category, favorites]);
   const visible = filtered.slice(0, page * PAGE_SIZE);
 
   const chooseFolder = () => {
@@ -167,6 +190,7 @@ export function WorkoutVideoLibrary() {
             storage_path: path,
             file_size: file.size,
             content_type: file.type,
+            category: uploadCategory,
           });
           if (rowError) {
             failed += 1;
