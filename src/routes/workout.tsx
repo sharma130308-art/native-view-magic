@@ -4,6 +4,7 @@ import { Bike, Dumbbell, Flame, Footprints, Play, Timer } from "lucide-react";
 import { Screen } from "@/components/zyra/TabBar";
 import { AppHeader } from "@/components/zyra/tabs/AppHeader";
 import { Button } from "@/components/ui/button";
+import { WorkoutVideoLibrary } from "@/components/zyra/features/WorkoutVideoLibrary";
 
 export const Route = createFileRoute("/workout")({
   component: WorkoutScreen,
@@ -80,6 +81,7 @@ function WorkoutScreen() {
             ))}
           </div>
         </section>
+        <WorkoutVideoLibrary />
       </div>
     </Screen>
   );

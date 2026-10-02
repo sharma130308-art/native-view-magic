@@ -13,3 +13,4 @@
 - AI calls live in server-only `src/lib/ai/*.server.ts` and are exposed via `src/routes/api/*` routes — keeps the AI key off the browser.
 - Developer tools (e.g. `/preview-doctor`) live on separate routes — keeps the recreated Flutter screens faithful.
 - Keep Workout in the second main navigation position and expose food History from Profile — matches the requested ZyraFit information architecture.
+- Store workout video files in the private `workout-videos` Cloud bucket and metadata in `workout_videos`; browser uploads use authenticated per-user paths so large libraries do not pass through the app server.
