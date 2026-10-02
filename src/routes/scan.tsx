@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Camera, Edit3, QrCode, Search, Send, Flashlight, X } from "lucide-react";
-import { useState } from "react";
+import { Camera, Edit3, QrCode, Search, Send, Flashlight, X, Loader2, ImagePlus } from "lucide-react";
+import { useRef, useState } from "react";
 
 import { Screen } from "@/components/zyra/TabBar";
 
@@ -19,6 +19,28 @@ export const Route = createFileRoute("/scan")({
 });
 
 type ScanMode = "photo" | "barcode" | "describe";
+
+type FoodItem = {
+  name: string;
+  serving: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
+type FoodResult = { items: FoodItem[]; notes?: string };
+
+async function recognizeFood(payload: { image?: string; description?: string }): Promise<FoodResult> {
+  const res = await fetch("/api/food-recognition", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as { error?: string }).error ?? "Recognition failed");
+  return data as FoodResult;
+}
 
 function ScanScreen() {
   const [mode, setMode] = useState<ScanMode>("photo");
@@ -70,7 +92,7 @@ function ScanScreen() {
           </div>
         </div>
 
-        <div className="flex-1 px-4 pb-4">
+        <div className="flex-1 overflow-y-auto px-4 pb-4">
           {mode === "photo" && <PhotoCaptureView />}
           {mode === "barcode" && <BarcodeView onDescribeInstead={() => setMode("describe")} />}
           {mode === "describe" && <DescribeFoodView />}
@@ -80,26 +102,123 @@ function ScanScreen() {
   );
 }
 
-function PhotoCaptureView() {
+function ResultCard({ result }: { result: FoodResult }) {
+  const totals = result.items.reduce(
+    (acc, i) => ({
+      calories: acc.calories + i.calories,
+      protein: acc.protein + i.protein,
+      carbs: acc.carbs + i.carbs,
+      fat: acc.fat + i.fat,
+    }),
+    { calories: 0, protein: 0, carbs: 0, fat: 0 },
+  );
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-3xl bg-black">
-      <div className="relative flex flex-1 items-center justify-center">
-        <div className="flex h-40 w-40 items-center justify-center rounded-full border-2 border-dashed border-white/40">
-          <Camera className="h-12 w-12 text-white/70" />
+    <div className="flex flex-col gap-2">
+      <div className="rounded-2xl bg-primary/10 p-4 text-center">
+        <p className="text-3xl font-bold text-foreground">{Math.round(totals.calories)}</p>
+        <p className="text-xs font-medium text-muted-foreground">total kcal</p>
+        <div className="mt-2 flex justify-center gap-4 text-xs text-muted-foreground">
+          <span>P {Math.round(totals.protein)}g</span>
+          <span>C {Math.round(totals.carbs)}g</span>
+          <span>F {Math.round(totals.fat)}g</span>
         </div>
-        <p className="absolute bottom-6 px-8 text-center text-sm text-white/80">
-          Center your meal in the frame
-        </p>
       </div>
-      <div className="flex items-center justify-center gap-10 bg-black py-6">
-        <div className="h-10 w-10 rounded-lg border border-white/30" />
-        <button
-          type="button"
-          className="h-16 w-16 rounded-full border-4 border-white/80 bg-white/20"
-          aria-label="Capture"
-        />
-        <div className="h-10 w-10 rounded-full border border-white/30" />
+      {result.items.map((item, i) => (
+        <div key={i} className="flex items-center justify-between rounded-2xl bg-card p-3">
+          <div>
+            <p className="text-sm font-semibold text-foreground">{item.name}</p>
+            <p className="text-xs text-muted-foreground">{item.serving}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-bold text-foreground">{Math.round(item.calories)} kcal</p>
+            <p className="text-[11px] text-muted-foreground">
+              P{Math.round(item.protein)} · C{Math.round(item.carbs)} · F{Math.round(item.fat)}
+            </p>
+          </div>
+        </div>
+      ))}
+      {result.notes && <p className="px-1 text-xs text-muted-foreground">{result.notes}</p>}
+    </div>
+  );
+}
+
+function ErrorText({ message }: { message: string }) {
+  return <p className="rounded-xl bg-destructive/10 px-3 py-2 text-xs text-destructive">{message}</p>;
+}
+
+function readAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Could not read the photo"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function PhotoCaptureView() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<FoodResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const onPick = async (file: File | undefined) => {
+    if (!file) return;
+    setError(null);
+    setResult(null);
+    const dataUrl = await readAsDataUrl(file);
+    setPhoto(dataUrl);
+    setBusy(true);
+    try {
+      setResult(await recognizeFood({ image: dataUrl }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Recognition failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex h-full flex-col gap-3">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => void onPick(e.target.files?.[0])}
+      />
+      <div className="relative flex min-h-56 flex-1 items-center justify-center overflow-hidden rounded-3xl bg-black">
+        {photo ? (
+          <img src={photo} alt="Your meal" className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-40 w-40 items-center justify-center rounded-full border-2 border-dashed border-white/40">
+            <Camera className="h-12 w-12 text-white/70" />
+          </div>
+        )}
+        {busy && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60">
+            <Loader2 className="h-8 w-8 animate-spin text-white" />
+            <p className="text-sm text-white">Identifying your food…</p>
+          </div>
+        )}
+        {!photo && (
+          <p className="absolute bottom-6 px-8 text-center text-sm text-white/80">
+            Snap or upload a photo of your meal
+          </p>
+        )}
       </div>
+      {error && <ErrorText message={error} />}
+      {result && <ResultCard result={result} />}
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={busy}
+        className="flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-40"
+      >
+        <ImagePlus className="h-4 w-4" />
+        {photo ? "Retake photo" : "Take or choose photo"}
+      </button>
     </div>
   );
 }
@@ -135,6 +254,24 @@ function BarcodeView({ onDescribeInstead }: { onDescribeInstead: () => void }) {
 
 function DescribeFoodView() {
   const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<FoodResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const analyze = async () => {
+    if (!text.trim()) return;
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    try {
+      setResult(await recognizeFood({ description: text.trim() }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Analysis failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="flex h-full flex-col gap-3">
       <p className="text-sm text-muted-foreground">
@@ -144,16 +281,19 @@ function DescribeFoodView() {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Describe your meal..."
-        rows={6}
+        rows={4}
         className="w-full resize-none rounded-2xl border border-border bg-card p-4 text-sm text-foreground outline-none"
       />
+      {error && <ErrorText message={error} />}
+      {result && <ResultCard result={result} />}
       <button
         type="button"
-        disabled={!text.trim()}
+        onClick={() => void analyze()}
+        disabled={!text.trim() || busy}
         className="mt-auto flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-40"
       >
-        <Send className="h-4 w-4" />
-        Analyze
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        {busy ? "Analyzing…" : "Analyze"}
       </button>
     </div>
   );
