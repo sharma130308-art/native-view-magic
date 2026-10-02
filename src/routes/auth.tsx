@@ -44,7 +44,13 @@ function AuthPage() {
         : await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) return void toast.error(error.message);
-    if (mode === "signup" && !data.session) setSent(true);
+    if (mode === "signup" && !data.session) {
+      if (data.user && data.user.identities?.length === 0) {
+        setMode("signin");
+        return void toast.info("You already have an account with this email — please sign in.");
+      }
+      setSent(true);
+    }
   };
 
   return (
