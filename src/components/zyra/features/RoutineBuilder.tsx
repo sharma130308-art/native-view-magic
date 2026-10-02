@@ -55,7 +55,7 @@ export function RoutineBuilder() {
 
   async function save() {
     if (!userId) return;
-    if (!name.trim() || picked.length === 0) return toast.error("Add a name and at least one video");
+    if (!name.trim() || picked.length === 0) { toast.error("Add a name and at least one video"); return; }
     setSaving(true);
     const { data, error } = await supabase
       .from("workout_routines")
@@ -63,7 +63,7 @@ export function RoutineBuilder() {
       .select()
       .single();
     setSaving(false);
-    if (error || !data) return toast.error("Could not save routine");
+    if (error || !data) { toast.error("Could not save routine"); return; }
     setRoutines((r) => [data, ...r]);
     setEditing(false);
     setName("");
@@ -73,12 +73,12 @@ export function RoutineBuilder() {
 
   async function remove(id: string) {
     const { error } = await supabase.from("workout_routines").delete().eq("id", id);
-    if (error) return toast.error("Could not delete");
+    if (error) { toast.error("Could not delete"); return; }
     setRoutines((r) => r.filter((x) => x.id !== id));
   }
 
   async function playAt(routine: Routine, index: number) {
-    const v = byId.get(routine.video_ids[index]);
+    const v = byId.get(routine.video_ids[index] ?? "");
     setPlayer({ routine, index, url: null });
     if (!v) return;
     const { data } = await supabase.storage.from("workout-videos").createSignedUrl(v.storage_path, 3600);
@@ -165,7 +165,7 @@ export function RoutineBuilder() {
             <div>
               <p className="font-semibold text-foreground">{player.routine.name}</p>
               <p className="text-xs text-muted-foreground">
-                {player.index + 1} / {player.routine.video_ids.length} · {byId.get(player.routine.video_ids[player.index])?.title}
+                {player.index + 1} / {player.routine.video_ids.length} · {byId.get(player.routine.video_ids[player.index] ?? "")?.title}
               </p>
             </div>
             <Button size="icon" variant="ghost" onClick={() => setPlayer(null)} aria-label="Close"><X /></Button>
