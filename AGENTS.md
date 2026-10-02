@@ -10,3 +10,5 @@
 <!-- LOVABLE:END -->
 
 - Keep the browser preview faithful to the uploaded ZyraFit Flutter app; the browser implementation exists only to make its native screens reviewable in Lovable.
+- AI calls live in server-only `src/lib/ai/*.server.ts` and are exposed via `src/routes/api/*` routes — keeps the AI key off the browser.
+- Developer tools (e.g. `/preview-doctor`) live on separate routes — keeps the recreated Flutter screens faithful.
