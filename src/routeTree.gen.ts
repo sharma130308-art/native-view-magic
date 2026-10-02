@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PreviewDoctorRouteImport } from './routes/preview-doctor'
+import { Route as ApiPreviewDoctorRouteImport } from './routes/api/preview-doctor'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PreviewDoctorRoute = PreviewDoctorRouteImport.update({
+  id: '/preview-doctor',
+  path: '/preview-doctor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPreviewDoctorRoute = ApiPreviewDoctorRouteImport.update({
+  id: '/api/preview-doctor',
+  path: '/api/preview-doctor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/preview-doctor': typeof PreviewDoctorRoute
+  '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/preview-doctor': typeof PreviewDoctorRoute
+  '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/preview-doctor': typeof PreviewDoctorRoute
+  '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/preview-doctor' | '/api/preview-doctor'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/preview-doctor' | '/api/preview-doctor'
+  id: '__root__' | '/' | '/preview-doctor' | '/api/preview-doctor'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PreviewDoctorRoute: typeof PreviewDoctorRoute
+  ApiPreviewDoctorRoute: typeof ApiPreviewDoctorRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/preview-doctor': {
+      id: '/preview-doctor'
+      path: '/preview-doctor'
+      fullPath: '/preview-doctor'
+      preLoaderRoute: typeof PreviewDoctorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/preview-doctor': {
+      id: '/api/preview-doctor'
+      path: '/api/preview-doctor'
+      fullPath: '/api/preview-doctor'
+      preLoaderRoute: typeof ApiPreviewDoctorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PreviewDoctorRoute: PreviewDoctorRoute,
+  ApiPreviewDoctorRoute: ApiPreviewDoctorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
