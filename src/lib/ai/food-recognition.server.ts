@@ -43,7 +43,10 @@ Rules:
 - Estimate calories, protein, carbs and fat in grams for the portion shown, not per 100g.
 - serving is a short human portion like "1 bowl (~300g)" or "2 slices".
 - If the photo shows no recognizable food, return one item named "Unrecognized" with zeros and explain in notes.
-- Be conservative: when unsure between two portion sizes, pick the middle.`;
+- Be conservative: when unsure between two portion sizes, pick the middle.
+Respond with ONLY valid JSON, no markdown fences, exactly this shape:
+{"items":[{"name":"Grilled chicken breast","serving":"1 piece (~170g)","calories":280,"protein":53,"carbs":0,"fat":6}],"notes":"optional short note"}
+All nutrition values must be plain numbers.`;
 
 export async function handleFoodRecognition(request: Request) {
   const apiKey = process.env["LOVABLE_API_KEY"];
