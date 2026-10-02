@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronRight, History } from "lucide-react";
 import { Screen } from "@/components/zyra/TabBar";
 import { AppHeader } from "@/components/zyra/tabs/AppHeader";
 import {
@@ -31,6 +32,19 @@ function ProfileScreen() {
       <div className="space-y-5 px-4 pb-6 pt-1">
         <h1 className="text-2xl font-bold text-foreground">Profile & Goals</h1>
         <p className="-mt-3 text-sm text-muted-foreground">Personalize your daily targets</p>
+        <Link
+          to="/history"
+          className="flex items-center gap-3 rounded-2xl bg-card px-4 py-3.5"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+            <History className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-foreground">History</p>
+            <p className="text-xs text-muted-foreground">View your daily food logs</p>
+          </div>
+          <ChevronRight className="h-5 w-5 text-muted-foreground" />
+        </Link>
         <TdeeSummaryCard />
         <BiometricsSection />
         <ActivityLevelSelector />
