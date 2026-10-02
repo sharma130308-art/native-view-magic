@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BarChart3, Ban, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { Screen } from "@/components/zyra/TabBar";
-import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -55,7 +54,7 @@ function PricingScreen() {
 
       <div className="flex flex-1 flex-col px-5 pb-6 pt-6">
         <div className="flex h-40 items-center justify-center overflow-hidden rounded-3xl bg-primary/5 px-6">
-          <ZyraFitLogo className="h-20 w-20" />
+          <span className="text-3xl font-extrabold tracking-tight text-primary">ZyraFit</span>
         </div>
 
         <h1 className="mt-6 text-center text-xl font-extrabold leading-snug">

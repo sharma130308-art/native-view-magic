@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Screen } from "@/components/zyra/TabBar";
-import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 
 export const Route = createFileRoute("/splash")({
   head: () => ({
@@ -44,7 +43,7 @@ function SplashScreen() {
     <Screen>
     <div className="mx-auto flex min-h-svh w-full max-w-md flex-col items-center justify-center bg-background text-foreground">
       <div className="flex flex-1 flex-col items-center justify-center gap-2">
-        <ZyraFitLogo className="h-24 w-24" />
+        <span className="text-3xl font-extrabold tracking-tight text-foreground">ZyraFit</span>
         <p className="text-sm tracking-wide text-muted-foreground">Track. Eat smart. Feel great.</p>
       </div>
       <div className="mb-16 w-3/5">
