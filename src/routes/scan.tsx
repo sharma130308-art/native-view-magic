@@ -146,7 +146,19 @@ function ErrorText({ message }: { message: string }) {
   return <p className="rounded-xl bg-destructive/10 px-3 py-2 text-xs text-destructive">{message}</p>;
 }
 
-function readAsDataUrl(file: File): Promise<string> {
+async function readAsDataUrl(file: File): Promise<string> {
+  // Phone photos are huge; shrink to max 1024px JPEG so upload succeeds.
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 1024 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.8);
+  } catch {
+    // fall back to raw file
+  }
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);

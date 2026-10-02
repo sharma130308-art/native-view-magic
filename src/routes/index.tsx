@@ -119,7 +119,7 @@ function Index() {
           ))}
         </div>
         {page === pages.length - 1 ? (
-          <Link to="/privacy-consent" className="block">
+          <Link to="/auth" className="block">
             <Button size="pill">Continue</Button>
           </Link>
         ) : (
