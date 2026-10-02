@@ -28,7 +28,7 @@ You only diagnose — never claim to have changed anything. Look at the screensh
 Consider: blank white page, build/compile errors, runtime error overlays, missing images, content clipped by viewport height or safe areas, zero-size containers, wrong viewport (desktop vs mobile), dark text on dark background, loading spinners stuck, wrong URL/route, 404 pages. Be concise and specific to what is visible.`;
 
 export async function handlePreviewDoctor(request: Request) {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return Response.json({ error: "AI is not configured." }, { status: 401 });
 
   let body: z.infer<typeof bodySchema>;
