@@ -20,6 +20,7 @@ import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OnboardingSurveyRouteImport } from './routes/onboarding-survey'
 import { Route as PreviewDoctorRouteImport } from './routes/preview-doctor'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PrivacyConsentRouteImport } from './routes/privacy-consent'
 import { Route as PrivacySettingsRouteImport } from './routes/privacy-settings'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -86,6 +87,11 @@ const PreviewDoctorRoute = PreviewDoctorRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyConsentRoute = PrivacyConsentRouteImport.update({
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/onboarding-survey': typeof OnboardingSurveyRoute
   '/preview-doctor': typeof PreviewDoctorRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/privacy-consent': typeof PrivacyConsentRoute
   '/privacy-settings': typeof PrivacySettingsRoute
   '/profile': typeof ProfileRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/onboarding-survey': typeof OnboardingSurveyRoute
   '/preview-doctor': typeof PreviewDoctorRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/privacy-consent': typeof PrivacyConsentRoute
   '/privacy-settings': typeof PrivacySettingsRoute
   '/profile': typeof ProfileRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/onboarding-survey': typeof OnboardingSurveyRoute
   '/preview-doctor': typeof PreviewDoctorRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/privacy-consent': typeof PrivacyConsentRoute
   '/privacy-settings': typeof PrivacySettingsRoute
   '/profile': typeof ProfileRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/onboarding-survey'
     | '/preview-doctor'
     | '/pricing'
+    | '/privacy'
     | '/privacy-consent'
     | '/privacy-settings'
     | '/profile'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/onboarding-survey'
     | '/preview-doctor'
     | '/pricing'
+    | '/privacy'
     | '/privacy-consent'
     | '/privacy-settings'
     | '/profile'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/onboarding-survey'
     | '/preview-doctor'
     | '/pricing'
+    | '/privacy'
     | '/privacy-consent'
     | '/privacy-settings'
     | '/profile'
@@ -315,6 +327,7 @@ export interface RootRouteChildren {
   OnboardingSurveyRoute: typeof OnboardingSurveyRoute
   PreviewDoctorRoute: typeof PreviewDoctorRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   PrivacyConsentRoute: typeof PrivacyConsentRoute
   PrivacySettingsRoute: typeof PrivacySettingsRoute
   ProfileRoute: typeof ProfileRoute
@@ -406,6 +419,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy-consent': {
@@ -507,6 +527,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingSurveyRoute: OnboardingSurveyRoute,
   PreviewDoctorRoute: PreviewDoctorRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   PrivacyConsentRoute: PrivacyConsentRoute,
   PrivacySettingsRoute: PrivacySettingsRoute,
   ProfileRoute: ProfileRoute,
