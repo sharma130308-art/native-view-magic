@@ -263,10 +263,24 @@ export function WorkoutVideoLibrary() {
           <h2 className="text-base font-bold text-foreground">Videos</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">{userId ? `${videos.length} workout videos` : "Sign in to watch workout videos"}</p>
         </div>
-        {isAdmin ? <Button size="sm" className="gap-2" onClick={chooseFolder} disabled={upload !== null && upload.done + upload.failed < upload.total}>
-          {upload && upload.done + upload.failed < upload.total ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FolderUp className="h-4 w-4" />}
-          Add folder
-        </Button> : null}
+        {isAdmin ? (
+          <div className="flex items-center gap-2">
+            <select
+              value={uploadCategory}
+              onChange={(event) => setUploadCategory(event.target.value as CategoryId)}
+              className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+              aria-label="Category for uploaded videos"
+            >
+              {CATEGORIES.filter(({ id }) => id !== "favorites").map(({ id, label }) => (
+                <option key={id} value={id}>{label}</option>
+              ))}
+            </select>
+            <Button size="sm" className="gap-2" onClick={chooseFolder} disabled={upload !== null && upload.done + upload.failed < upload.total}>
+              {upload && upload.done + upload.failed < upload.total ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FolderUp className="h-4 w-4" />}
+              Add folder
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       {upload ? (
