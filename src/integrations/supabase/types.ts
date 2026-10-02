@@ -32,6 +32,30 @@ export type Database = {
         }
         Relationships: []
       }
+      workout_routines: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+          video_ids: string[]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+          video_ids?: string[]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+          video_ids?: string[]
+        }
+        Relationships: []
+      }
       workout_videos: {
         Row: {
           category: string
