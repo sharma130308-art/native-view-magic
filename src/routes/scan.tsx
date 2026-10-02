@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Camera, Edit3, QrCode, Search, Send, Flashlight, X, Loader2, ImagePlus } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Camera, Check, Edit3, QrCode, Search, Send, X, Loader2, ImagePlus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Screen } from "@/components/zyra/TabBar";
@@ -254,7 +254,7 @@ function PhotoCaptureView() {
         className="hidden"
         onChange={(e) => void onPick(e.target.files?.[0])}
       />
-      <div className="relative flex min-h-56 flex-1 items-center justify-center overflow-hidden rounded-3xl bg-black">
+      <div className={`relative flex items-center justify-center overflow-hidden rounded-3xl bg-black ${photo ? "h-48 shrink-0" : "min-h-56 flex-1"}`}>
         <video
           ref={videoRef}
           muted
@@ -295,12 +295,13 @@ function PhotoCaptureView() {
       </div>
       {error && <ErrorText message={error} />}
       {result && <ResultCard result={result} />}
+      {result && <AddToLogButton result={result} />}
       {photo ? (
         <button
           type="button"
           onClick={retake}
           disabled={busy}
-          className="flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-40"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-muted py-3.5 text-sm font-semibold text-foreground disabled:opacity-40"
         >
           <Camera className="h-4 w-4" />
           Retake photo
@@ -320,24 +321,141 @@ function PhotoCaptureView() {
   );
 }
 
+async function lookupBarcode(code: string): Promise<FoodResult> {
+  const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.status !== 1 || !data.product) throw new Error(`Product ${code} not found`);
+  const p = data.product;
+  const n = p.nutriments ?? {};
+  const per = n["energy-kcal_serving"] != null;
+  const pick = (k: string) => Number(per ? n[`${k}_serving`] : n[`${k}_100g`]) || 0;
+  return {
+    items: [
+      {
+        name: [p.product_name, p.brands].filter(Boolean).join(" · ") || `Product ${code}`,
+        serving: per ? p.serving_size ?? "1 serving" : "100 g",
+        calories: pick("energy-kcal"),
+        protein: pick("proteins"),
+        carbs: pick("carbohydrates"),
+        fat: pick("fat"),
+      },
+    ],
+    notes: `Barcode ${code}`,
+  };
+}
+
 function BarcodeView({ onDescribeInstead }: { onDescribeInstead: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [code, setCode] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<FoodResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [manual, setManual] = useState("");
+  const [scanKey, setScanKey] = useState(0);
+
+  const lookup = async (c: string) => {
+    setCode(c);
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    try {
+      setResult(await lookupBarcode(c));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Lookup failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    if (code) return;
+    let controls: { stop: () => void } | null = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { BrowserMultiFormatReader } = await import("@zxing/browser");
+        const reader = new BrowserMultiFormatReader();
+        if (!videoRef.current || cancelled) return;
+        controls = await reader.decodeFromConstraints(
+          { video: { facingMode: { ideal: "environment" } }, audio: false },
+          videoRef.current,
+          (res) => {
+            if (res && !cancelled) {
+              cancelled = true;
+              controls?.stop();
+              void lookup(res.getText());
+            }
+          },
+        );
+        if (cancelled) controls.stop();
+      } catch {
+        setError("Camera not available — type the barcode number below.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+      controls?.stop();
+    };
+  }, [code, scanKey]);
+
+  const rescan = () => {
+    setCode(null);
+    setResult(null);
+    setError(null);
+    setScanKey((k) => k + 1);
+  };
+
   return (
-    <div className="flex h-full flex-col">
-      <div className="relative flex-1 overflow-hidden rounded-3xl bg-black">
+    <div className="flex h-full flex-col gap-3">
+      <div className={`relative overflow-hidden rounded-3xl bg-black ${code ? "h-40" : "min-h-56 flex-1"}`}>
+        {!code && <video ref={videoRef} muted playsInline autoPlay className="absolute inset-0 h-full w-full object-cover" />}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="h-28 w-56 rounded-2xl border-[3px] border-white/90" />
         </div>
+        {busy && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60">
+            <Loader2 className="h-8 w-8 animate-spin text-white" />
+            <p className="text-sm text-white">Looking up product…</p>
+          </div>
+        )}
+        {code && !busy && (
+          <p className="absolute inset-x-0 bottom-3 text-center text-sm text-white/80">Scanned {code}</p>
+        )}
+      </div>
+      {!code && <p className="text-center text-sm text-muted-foreground">Point at a product barcode</p>}
+      {error && <ErrorText message={error} />}
+      {result && <ResultCard result={result} />}
+      {result && <AddToLogButton result={result} />}
+      {code ? (
         <button
           type="button"
-          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/20"
-          aria-label="Toggle flashlight"
+          onClick={rescan}
+          disabled={busy}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-muted py-3.5 text-sm font-semibold text-foreground disabled:opacity-40"
         >
-          <Flashlight className="h-5 w-5 text-white" />
+          <QrCode className="h-4 w-4" />
+          Scan another
         </button>
-      </div>
-      <p className="py-3 text-center text-sm text-muted-foreground">
-        Point at a product barcode
-      </p>
+      ) : (
+        <form
+          className="flex gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (manual.trim()) void lookup(manual.trim());
+          }}
+        >
+          <input
+            value={manual}
+            onChange={(e) => setManual(e.target.value.replace(/\D/g, ""))}
+            inputMode="numeric"
+            placeholder="Or type barcode number"
+            className="flex-1 rounded-2xl bg-muted px-4 py-3 text-sm text-foreground outline-none"
+          />
+          <button type="submit" className="rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground">
+            Find
+          </button>
+        </form>
+      )}
       <button
         type="button"
         onClick={onDescribeInstead}
@@ -346,6 +464,32 @@ function BarcodeView({ onDescribeInstead }: { onDescribeInstead: () => void }) {
         Describe it instead
       </button>
     </div>
+  );
+}
+
+function AddToLogButton({ result }: { result: FoodResult }) {
+  const navigate = useNavigate();
+  const add = () => {
+    try {
+      const key = "zyrafit-food-log";
+      const log = JSON.parse(localStorage.getItem(key) ?? "[]");
+      log.push({ at: new Date().toISOString(), items: result.items });
+      localStorage.setItem(key, JSON.stringify(log));
+    } catch {
+      // ignore storage errors
+    }
+    void navigate({ to: "/home" });
+  };
+  if (!result.items.length) return null;
+  return (
+    <button
+      type="button"
+      onClick={add}
+      className="flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground"
+    >
+      <Check className="h-4 w-4" />
+      OK — add to my log
+    </button>
   );
 }
 
