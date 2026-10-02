@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/zyrafit-mark-transparent.png";
+import logoAsset from "@/assets/zyrafit-logo-exact.png";
 
 type ZyraFitLogoProps = {
   className?: string;
