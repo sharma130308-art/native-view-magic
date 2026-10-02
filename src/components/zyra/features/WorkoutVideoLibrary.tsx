@@ -280,10 +280,43 @@ export function WorkoutVideoLibrary() {
       ) : null}
 
       {userId && videos.length > 0 ? (
-        <div className="relative mt-3">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search videos" className="pl-9" />
-        </div>
+        <>
+          <div className="-mx-4 mt-3 flex gap-1 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Workout categories">
+            {CATEGORIES.map(({ id, label, icon: Icon }) => {
+              const active = category === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => { setCategory(active ? "all" : id); setPage(1); }}
+                  className="flex w-16 shrink-0 flex-col items-center gap-1.5 rounded-lg py-2"
+                >
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"}`}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className={`text-[10px] font-medium leading-tight ${active ? "text-primary" : "text-muted-foreground"}`}>{label}</span>
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => { setCategory("all"); setQuery(""); setPage(1); }}
+              className="flex w-16 shrink-0 flex-col items-center gap-1.5 rounded-lg py-2"
+              aria-label="Show all videos"
+            >
+              <span className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${category === "all" && !query ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"}`}>
+                <SlidersHorizontal className="h-5 w-5" />
+              </span>
+              <span className={`text-[10px] font-medium leading-tight ${category === "all" && !query ? "text-primary" : "text-muted-foreground"}`}>All</span>
+            </button>
+          </div>
+          <div className="relative mt-2">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search videos" className="pl-9" />
+          </div>
+        </>
       ) : null}
 
       {loading ? (
@@ -301,6 +334,9 @@ export function WorkoutVideoLibrary() {
                     <p className="truncate text-sm font-semibold text-foreground">{video.title}</p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground">{formatSize(video.file_size)}</p>
                   </div>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => toggleFavorite(video.id)} aria-label={favorites.has(video.id) ? `Remove ${video.title} from favorites` : `Add ${video.title} to favorites`}>
+                    <Star className={`h-4 w-4 ${favorites.has(video.id) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                  </Button>
                   {isAdmin ? <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => void removeVideo(video)} aria-label={`Delete ${video.title}`} title="Delete video">
                     <Trash2 className="h-4 w-4 text-muted-foreground" />
                   </Button> : null}
