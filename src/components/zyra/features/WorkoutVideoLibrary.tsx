@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Film,
+  FolderUp,
   LoaderCircle,
+  LogIn,
+  Search,
   LayoutGrid,
   Star,
   Trash2,
