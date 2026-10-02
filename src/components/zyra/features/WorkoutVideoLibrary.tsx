@@ -42,15 +42,17 @@ export function WorkoutVideoLibrary() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const loadVideos = async (id: string) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("workout_videos")
       .select("*")
-      .eq("user_id", id)
       .order("created_at", { ascending: false });
-    if (error) toast.error("Could not load your videos");
+    const { data: role } = await supabase.from("user_roles").select("role").eq("user_id", id).eq("role", "admin").maybeSingle();
+    setIsAdmin(Boolean(role));
+    if (error) toast.error("Could not load videos");
     else setVideos(data ?? []);
     setLoading(false);
   };
@@ -72,6 +74,7 @@ export function WorkoutVideoLibrary() {
       if (id) void loadVideos(id);
       else {
         setVideos([]);
+        setIsAdmin(false);
         setLoading(false);
       }
     });
@@ -200,12 +203,12 @@ export function WorkoutVideoLibrary() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-bold text-foreground">Videos</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">{userId ? `${videos.length} in your library` : "Sign in to add your library"}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{userId ? `${videos.length} workout videos` : "Sign in to watch workout videos"}</p>
         </div>
-        <Button size="sm" className="gap-2" onClick={chooseFolder} disabled={upload !== null && upload.done + upload.failed < upload.total}>
+        {isAdmin ? <Button size="sm" className="gap-2" onClick={chooseFolder} disabled={upload !== null && upload.done + upload.failed < upload.total}>
           {upload && upload.done + upload.failed < upload.total ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FolderUp className="h-4 w-4" />}
           Add folder
-        </Button>
+        </Button> : null}
       </div>
 
       {upload ? (
@@ -240,15 +243,17 @@ export function WorkoutVideoLibrary() {
                     <p className="truncate text-sm font-semibold text-foreground">{video.title}</p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground">{formatSize(video.file_size)}</p>
                   </div>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => void removeVideo(video)} aria-label={`Delete ${video.title}`} title="Delete video">
+                  {isAdmin ? <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => void removeVideo(video)} aria-label={`Delete ${video.title}`} title="Delete video">
                     <Trash2 className="h-4 w-4 text-muted-foreground" />
-                  </Button>
+                  </Button> : null}
                 </div>
               </article>
             ))}
           </div>
           {visible.length < filtered.length ? <Button variant="outline" className="mt-3 w-full" onClick={() => setPage((value) => value + 1)}>Load more</Button> : null}
         </>
+      ) : userId && !isAdmin ? (
+        <p className="mt-3 rounded-lg border border-border bg-card p-5 text-center text-sm text-muted-foreground">No workout videos yet</p>
       ) : userId ? (
         <button type="button" onClick={chooseFolder} className="mt-3 flex w-full flex-col items-center rounded-lg border border-dashed border-border bg-card px-5 py-8 text-center">
           <Film className="h-7 w-7 text-muted-foreground" />
@@ -258,7 +263,7 @@ export function WorkoutVideoLibrary() {
       ) : (
         <button type="button" onClick={() => setShowSignIn(true)} className="mt-3 flex w-full items-center gap-3 rounded-lg border border-border bg-card p-4 text-left">
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10"><LogIn className="h-5 w-5 text-primary" /></span>
-          <span><span className="block text-sm font-semibold text-foreground">Sign in to add videos</span><span className="text-xs text-muted-foreground">Your library stays private</span></span>
+          <span><span className="block text-sm font-semibold text-foreground">Sign in to watch videos</span><span className="text-xs text-muted-foreground">Free account required</span></span>
         </button>
       )}
 
@@ -266,8 +271,8 @@ export function WorkoutVideoLibrary() {
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/50 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="video-sign-in-title">
           <div className="relative w-full max-w-md rounded-t-2xl bg-background p-5 sm:rounded-lg">
             <Button variant="ghost" size="icon" className="absolute right-3 top-3" onClick={() => setShowSignIn(false)} aria-label="Close sign in"><X className="h-5 w-5" /></Button>
-            <h3 id="video-sign-in-title" className="text-lg font-bold text-foreground">Your video library</h3>
-            <p className="mt-1 pr-8 text-sm text-muted-foreground">Sign in to upload and watch your workout videos.</p>
+            <h3 id="video-sign-in-title" className="text-lg font-bold text-foreground">Workout videos</h3>
+            <p className="mt-1 pr-8 text-sm text-muted-foreground">Sign in to watch the workout video library.</p>
             <div className="mt-5 space-y-3">
               <Input type="email" autoComplete="email" placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
               <Input type="password" autoComplete="current-password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />
