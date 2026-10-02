@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Camera, Edit3, QrCode, Search, Send, Flashlight, X, Loader2, ImagePlus } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Screen } from "@/components/zyra/TabBar";
 
@@ -169,16 +169,46 @@ async function readAsDataUrl(file: File): Promise<string> {
 
 function PhotoCaptureView() {
   const inputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [live, setLive] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<FoodResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const onPick = async (file: File | undefined) => {
-    if (!file) return;
+  const stopCamera = () => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    setLive(false);
+  };
+
+  const startCamera = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play().catch(() => undefined);
+      }
+      setLive(true);
+    } catch {
+      setLive(false);
+    }
+  };
+
+  useEffect(() => {
+    void startCamera();
+    return stopCamera;
+  }, []);
+
+  const analyze = async (dataUrl: string) => {
     setError(null);
     setResult(null);
-    const dataUrl = await readAsDataUrl(file);
     setPhoto(dataUrl);
     setBusy(true);
     try {
@@ -190,23 +220,58 @@ function PhotoCaptureView() {
     }
   };
 
+  const snap = () => {
+    const v = videoRef.current;
+    if (!v || !v.videoWidth) return;
+    const scale = Math.min(1, 1024 / Math.max(v.videoWidth, v.videoHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(v.videoWidth * scale);
+    c.height = Math.round(v.videoHeight * scale);
+    c.getContext("2d")?.drawImage(v, 0, 0, c.width, c.height);
+    stopCamera();
+    void analyze(c.toDataURL("image/jpeg", 0.8));
+  };
+
+  const onPick = async (file: File | undefined) => {
+    if (!file) return;
+    stopCamera();
+    void analyze(await readAsDataUrl(file));
+  };
+
+  const retake = () => {
+    setPhoto(null);
+    setResult(null);
+    setError(null);
+    void startCamera();
+  };
+
   return (
     <div className="flex h-full flex-col gap-3">
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         className="hidden"
         onChange={(e) => void onPick(e.target.files?.[0])}
       />
       <div className="relative flex min-h-56 flex-1 items-center justify-center overflow-hidden rounded-3xl bg-black">
-        {photo ? (
-          <img src={photo} alt="Your meal" className="absolute inset-0 h-full w-full object-cover" />
-        ) : (
-          <div className="flex h-40 w-40 items-center justify-center rounded-full border-2 border-dashed border-white/40">
+        <video
+          ref={videoRef}
+          muted
+          playsInline
+          autoPlay
+          className={live && !photo ? "absolute inset-0 h-full w-full object-cover" : "hidden"}
+        />
+        {photo && <img src={photo} alt="Your meal" className="absolute inset-0 h-full w-full object-cover" />}
+        {!photo && !live && (
+          <button
+            type="button"
+            onClick={() => (navigator.mediaDevices?.getUserMedia ? void startCamera() : inputRef.current?.click())}
+            className="flex h-40 w-40 items-center justify-center rounded-full border-2 border-dashed border-white/40"
+            aria-label="Open camera"
+          >
             <Camera className="h-12 w-12 text-white/70" />
-          </div>
+          </button>
         )}
         {busy && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60">
@@ -214,23 +279,43 @@ function PhotoCaptureView() {
             <p className="text-sm text-white">Identifying your food…</p>
           </div>
         )}
-        {!photo && (
+        {live && !photo && (
+          <button
+            type="button"
+            onClick={snap}
+            aria-label="Take photo"
+            className="absolute bottom-5 h-16 w-16 rounded-full border-4 border-white bg-white/30"
+          />
+        )}
+        {!photo && !live && (
           <p className="absolute bottom-6 px-8 text-center text-sm text-white/80">
-            Snap or upload a photo of your meal
+            Tap the camera to start, or choose a photo below
           </p>
         )}
       </div>
       {error && <ErrorText message={error} />}
       {result && <ResultCard result={result} />}
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        disabled={busy}
-        className="flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-40"
-      >
-        <ImagePlus className="h-4 w-4" />
-        {photo ? "Retake photo" : "Take or choose photo"}
-      </button>
+      {photo ? (
+        <button
+          type="button"
+          onClick={retake}
+          disabled={busy}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-40"
+        >
+          <Camera className="h-4 w-4" />
+          Retake photo
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-muted py-3.5 text-sm font-semibold text-foreground disabled:opacity-40"
+        >
+          <ImagePlus className="h-4 w-4" />
+          Choose from gallery
+        </button>
+      )}
     </div>
   );
 }
