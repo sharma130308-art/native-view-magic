@@ -42,7 +42,7 @@ type UploadState = { done: number; failed: number; total: number };
 const PAGE_SIZE = 12;
 const ALLOWED_TYPES = new Set(["video/mp4", "video/quicktime", "video/x-m4v", "video/webm"]);
 
-const CATEGORIES = [
+export const CATEGORIES = [
   { id: "favorites", label: "Favorites", icon: null },
   { id: "cardio", label: "Cardio", icon: cardioIcon },
   { id: "chest", label: "Chest", icon: chestIcon },
