@@ -24,6 +24,9 @@ import calvesIcon from "@/assets/muscles/calves.png";
 import forearmsIcon from "@/assets/muscles/forearms.png";
 import neckIcon from "@/assets/muscles/neck.png";
 import otherIcon from "@/assets/muscles/other.png";
+import absIcon from "@/assets/muscles/abs.png";
+import hipsIcon from "@/assets/muscles/hips.png";
+import trapeziusIcon from "@/assets/muscles/trapezius.png";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -51,9 +54,9 @@ const CATEGORIES = [
   { id: "shoulders", label: "Shoulders", icon: shouldersIcon },
   { id: "calves", label: "Calves", icon: calvesIcon },
   { id: "forearms", label: "Forearms", icon: forearmsIcon },
-  { id: "abs", label: "Abs", icon: otherIcon },
-  { id: "hips", label: "Hips", icon: hamstringsIcon },
-  { id: "trapezius", label: "Trapezius", icon: neckIcon },
+  { id: "abs", label: "Abs", icon: absIcon },
+  { id: "hips", label: "Hips", icon: hipsIcon },
+  { id: "trapezius", label: "Trapezius", icon: trapeziusIcon },
   { id: "neck", label: "Neck", icon: neckIcon },
   { id: "other", label: "Other", icon: otherIcon },
 ] as const;
