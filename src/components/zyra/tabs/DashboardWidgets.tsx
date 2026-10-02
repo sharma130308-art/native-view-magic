@@ -103,16 +103,20 @@ export function MacroRingCard({
   );
 }
 
-export function RecentMealsSection() {
-  const meals = [
-    { name: "Grilled Chicken Salad", calories: 420, time: "12:30 PM" },
-    { name: "Greek Yogurt & Berries", calories: 210, time: "8:15 AM" },
-    { name: "Protein Shake", calories: 180, time: "6:45 AM" },
-  ];
+export function RecentMealsSection({
+  meals,
+}: {
+  meals: { name: string; calories: number; time: string }[];
+}) {
   return (
     <div>
       <h3 className="mb-3 text-base font-bold text-foreground">Recent Meals</h3>
       <div className="space-y-2.5">
+        {meals.length === 0 && (
+          <p className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground">
+            No meals logged today yet. Tap + to add food.
+          </p>
+        )}
         {meals.map((m) => (
           <div key={m.name} className="flex items-center gap-3 rounded-2xl bg-card p-3.5 shadow-sm">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
