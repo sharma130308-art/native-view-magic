@@ -78,15 +78,16 @@ export async function handleFoodRecognition(request: Request) {
   if (body.image) content.push({ type: "image", image: new URL(body.image) });
 
   try {
-    const result = await generateObject({
+    const result = await generateText({
       model: provider.chatModel(MODEL),
-      schema: foodSchema,
       system: SYSTEM,
       messages: [{ role: "user", content }],
       maxRetries: 0,
       abortSignal: request.signal,
     });
-    return withLovableAiGatewayRunIdHeader(Response.json(result.object), runIdFetch);
+    const text = result.text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
+    const parsed = foodSchema.parse(JSON.parse(text));
+    return withLovableAiGatewayRunIdHeader(Response.json(parsed), runIdFetch);
   } catch (error) {
     const e = error as { statusCode?: number; message?: string };
     const status = e.statusCode ?? 500;
