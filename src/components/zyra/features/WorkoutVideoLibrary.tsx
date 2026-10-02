@@ -1,7 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  Film,
-  FolderUp,
   LoaderCircle,
   LogIn,
   Search,
@@ -29,16 +27,13 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
 type WorkoutVideo = Tables<"workout_videos">;
-type UploadState = { done: number; failed: number; total: number };
 
 const PAGE_SIZE = 12;
-const ALLOWED_TYPES = new Set(["video/mp4", "video/quicktime", "video/x-m4v", "video/webm"]);
 
 export const CATEGORIES = [
   { id: "favorites", label: "Favorites", icon: null },
@@ -64,23 +59,11 @@ function cleanTitle(filename: string) {
   return filename.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim() || "Workout video";
 }
 
-function safeFilename(filename: string) {
-  const extension = filename.split(".").pop()?.toLowerCase() ?? "mp4";
-  return `${crypto.randomUUID()}.${extension}`;
-}
-
-function formatSize(bytes: number) {
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
 export function WorkoutVideoLibrary() {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [videos, setVideos] = useState<WorkoutVideo[]>([]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [upload, setUpload] = useState<UploadState | null>(null);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<{ video: WorkoutVideo; url: string } | null>(null);
   const [showSignIn, setShowSignIn] = useState(false);
@@ -89,7 +72,6 @@ export function WorkoutVideoLibrary() {
   const [authBusy, setAuthBusy] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [category, setCategory] = useState<CategoryId | "all">("all");
-  const [uploadCategory, setUploadCategory] = useState<CategoryId>("chest");
   const [favorites, setFavorites] = useState<Set<string>>(() => {
     try {
       return new Set(JSON.parse(localStorage.getItem("zyrafit-video-favorites") ?? "[]") as string[]);
@@ -158,66 +140,6 @@ export function WorkoutVideoLibrary() {
   }, [query, videos, category, favorites]);
   const visible = filtered.slice(0, page * PAGE_SIZE);
 
-  const chooseFolder = () => {
-    if (!userId) {
-      setShowSignIn(true);
-      return;
-    }
-    inputRef.current?.click();
-  };
-
-  const uploadFiles = async (files: File[]) => {
-    if (!userId || files.length === 0) return;
-    const accepted = files.filter((file) => ALLOWED_TYPES.has(file.type));
-    if (accepted.length === 0) {
-      toast.error("Choose MP4, MOV, M4V, or WebM videos");
-      return;
-    }
-    if (accepted.length > 1000) {
-      toast.error("Choose no more than 1,000 videos at once");
-      return;
-    }
-    setUpload({ done: 0, failed: 0, total: accepted.length });
-    let nextIndex = 0;
-    let done = 0;
-    let failed = 0;
-
-    const worker = async () => {
-      while (nextIndex < accepted.length) {
-        const file = accepted[nextIndex++];
-        if (!file) continue;
-        const path = `${userId}/${safeFilename(file.name)}`;
-        const { error: storageError } = await supabase.storage.from("workout-videos").upload(path, file, {
-          cacheControl: "3600",
-          contentType: file.type,
-          upsert: false,
-        });
-        if (storageError) {
-          failed += 1;
-        } else {
-          const { error: rowError } = await supabase.from("workout_videos").insert({
-            user_id: userId,
-            title: cleanTitle(file.name),
-            storage_path: path,
-            file_size: file.size,
-            content_type: file.type,
-            category: uploadCategory,
-          });
-          if (rowError) {
-            failed += 1;
-            await supabase.storage.from("workout-videos").remove([path]);
-          } else done += 1;
-        }
-        setUpload({ done, failed, total: accepted.length });
-      }
-    };
-
-    await Promise.all(Array.from({ length: Math.min(3, accepted.length) }, worker));
-    await loadVideos(userId);
-    if (failed) toast.error(`${failed} video${failed === 1 ? "" : "s"} could not be uploaded`);
-    else toast.success(`${done} video${done === 1 ? "" : "s"} uploaded`);
-  };
-
   const playVideo = async (video: WorkoutVideo) => {
     const { data, error } = await supabase.storage.from("workout-videos").createSignedUrl(video.storage_path, 3600);
     if (error || !data.signedUrl) {
@@ -255,52 +177,6 @@ export function WorkoutVideoLibrary() {
 
   return (
     <section className="mt-6">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="video/mp4,video/quicktime,video/x-m4v,video/webm"
-        multiple
-        className="hidden"
-        aria-label="Choose workout video folder"
-        onChange={(event) => {
-          void uploadFiles(Array.from(event.target.files ?? []));
-          event.target.value = "";
-        }}
-        {...({ webkitdirectory: "", directory: "" } as Record<string, string>)}
-      />
-
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">{userId ? `${videos.length} workout videos` : "Sign in to watch workout videos"}</p>
-        {isAdmin ? (
-          <div className="flex items-center gap-2">
-            <select
-              value={uploadCategory}
-              onChange={(event) => setUploadCategory(event.target.value as CategoryId)}
-              className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
-              aria-label="Category for uploaded videos"
-            >
-              {CATEGORIES.filter(({ id }) => id !== "favorites").map(({ id, label }) => (
-                <option key={id} value={id}>{label}</option>
-              ))}
-            </select>
-            <Button size="sm" className="gap-2" onClick={chooseFolder} disabled={upload !== null && upload.done + upload.failed < upload.total}>
-              {upload && upload.done + upload.failed < upload.total ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FolderUp className="h-4 w-4" />}
-              Add folder
-            </Button>
-          </div>
-        ) : null}
-      </div>
-
-      {upload ? (
-        <div className="mt-3 rounded-lg border border-border bg-card p-3">
-          <div className="mb-2 flex justify-between text-xs text-muted-foreground">
-            <span>{upload.done + upload.failed} of {upload.total}</span>
-            <span>{upload.failed ? `${upload.failed} failed` : "Uploading"}</span>
-          </div>
-          <Progress value={((upload.done + upload.failed) / upload.total) * 100} />
-        </div>
-      ) : null}
-
       {userId ? (
         <>
           <div className="-mx-4 mt-3 flex gap-1 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Workout categories">
@@ -370,14 +246,8 @@ export function WorkoutVideoLibrary() {
           </div>
           {visible.length < filtered.length ? <Button variant="outline" className="mt-3 w-full" onClick={() => setPage((value) => value + 1)}>Load more</Button> : null}
         </>
-      ) : userId && !isAdmin ? (
-        <p className="mt-3 rounded-lg border border-border bg-card p-5 text-center text-sm text-muted-foreground">No workout videos yet</p>
       ) : userId ? (
-        <button type="button" onClick={chooseFolder} className="mt-3 flex w-full flex-col items-center rounded-lg border border-dashed border-border bg-card px-5 py-8 text-center">
-          <Film className="h-7 w-7 text-muted-foreground" />
-          <span className="mt-2 text-sm font-semibold text-foreground">Add your workout folder</span>
-          <span className="mt-1 text-xs text-muted-foreground">Select up to 1,000 videos</span>
-        </button>
+        <p className="mt-3 rounded-lg border border-border bg-card p-5 text-center text-sm text-muted-foreground">No workout videos yet</p>
       ) : (
         <button type="button" onClick={() => setShowSignIn(true)} className="mt-3 flex w-full items-center gap-3 rounded-lg border border-border bg-card p-4 text-left">
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10"><LogIn className="h-5 w-5 text-primary" /></span>
