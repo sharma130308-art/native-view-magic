@@ -4,7 +4,6 @@ import {
   FolderUp,
   LoaderCircle,
   LogIn,
-  Play,
   Search,
   SlidersHorizontal,
   Star,
