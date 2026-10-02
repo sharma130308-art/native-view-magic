@@ -6,7 +6,7 @@ import { ZyraFitLogo } from "@/components/zyra/ZyraFitLogo";
 export function AppHeader() {
   return (
     <div className="flex items-center gap-2 px-4 py-3">
-      <ZyraFitLogo className="h-8 w-28 rounded-sm" />
+      <ZyraFitLogo className="h-7 w-7" />
       <div className="flex-1" />
       <Link
         to="/pricing"

@@ -44,7 +44,7 @@ function SplashScreen() {
     <Screen>
     <div className="mx-auto flex min-h-svh w-full max-w-md flex-col items-center justify-center bg-background text-foreground">
       <div className="flex flex-1 flex-col items-center justify-center gap-2">
-        <ZyraFitLogo className="aspect-[2.45/1] w-72 max-w-[82%] rounded-md" />
+        <ZyraFitLogo className="h-24 w-24" />
         <p className="text-sm tracking-wide text-muted-foreground">Track. Eat smart. Feel great.</p>
       </div>
       <div className="mb-16 w-3/5">

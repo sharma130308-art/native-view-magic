@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/zyrafit-wordmark.png.asset.json";
+import logoAsset from "@/assets/zyrafit-mark-transparent.png";
 
 type ZyraFitLogoProps = {
   className?: string;
@@ -7,11 +7,11 @@ type ZyraFitLogoProps = {
 
 export function ZyraFitLogo({ className = "", compact = false }: ZyraFitLogoProps) {
   return (
-    <span className={`block overflow-hidden bg-[oklch(0.176_0.019_264)] ${className}`}>
+    <span className={`block shrink-0 ${className}`}>
       <img
-        src={logoAsset.url}
+        src={logoAsset}
         alt="ZyraFit"
-        className={`${compact ? "h-full max-w-none object-cover object-left" : "h-full w-full object-contain"}`}
+        className={`h-full w-full object-contain ${compact ? "" : ""}`}
       />
     </span>
   );
