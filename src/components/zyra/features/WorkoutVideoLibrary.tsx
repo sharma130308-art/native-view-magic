@@ -31,6 +31,8 @@ import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
+type WorkoutVideo = Tables<"workout_videos">;
+
 const PAGE_SIZE = 12;
 
 export const CATEGORIES = [
