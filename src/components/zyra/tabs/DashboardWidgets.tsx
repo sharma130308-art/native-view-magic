@@ -134,27 +134,62 @@ export function RecentMealsSection({
   );
 }
 
-export function WaterIntakeWidget({ waterIntake = 4 }: { waterIntake?: number }) {
-  const progress = waterIntake / 8;
+export function WaterIntakeWidget({
+  waterIntake,
+  goal = 8,
+  onChange,
+}: {
+  waterIntake: number;
+  goal?: number;
+  onChange?: (n: number) => void;
+}) {
+  const progress = goal > 0 ? waterIntake / goal : 0;
+  const cells = Math.max(goal, waterIntake);
   return (
     <div className="rounded-[20px] bg-card p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-foreground">Water Intake</h3>
-        <span className="text-sm font-medium text-muted-foreground">{waterIntake} / 8 glasses</span>
+        <span className="text-sm font-medium text-muted-foreground">
+          {waterIntake} / {goal} glasses
+        </span>
       </div>
       <div className="mt-4 grid grid-cols-4 gap-3">
-        {Array.from({ length: 8 }).map((_, i) => {
+        {Array.from({ length: cells }).map((_, i) => {
           const active = i < waterIntake;
           return (
-            <div key={i} className="flex aspect-[0.74] items-center justify-center rounded-md border border-border">
+            <button
+              type="button"
+              key={i}
+              aria-label={`${i + 1} glasses`}
+              onClick={() => onChange?.(active && i === waterIntake - 1 ? i : i + 1)}
+              className="flex aspect-[0.74] items-center justify-center rounded-md border border-border"
+            >
               <Droplet className={`h-5 w-5 ${active ? "fill-sky-400 text-sky-400" : "text-muted-foreground/40"}`} />
-            </div>
+            </button>
           );
         })}
       </div>
       <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div className="h-full rounded-full bg-sky-400" style={{ width: `${Math.min(1, progress) * 100}%` }} />
       </div>
+      {onChange && (
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            onClick={() => onChange(waterIntake - 1)}
+            className="flex-1 rounded-xl bg-muted py-2.5 text-sm font-semibold text-foreground"
+          >
+            − Glass
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange(waterIntake + 1)}
+            className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
+          >
+            + Glass
+          </button>
+        </div>
+      )}
     </div>
   );
 }

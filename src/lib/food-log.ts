@@ -39,3 +39,37 @@ export function useTodayLog() {
     );
   return { entries, totals };
 }
+
+export type Goals = { calories: number; protein: number; carbs: number; fat: number; water: number };
+export const DEFAULT_GOALS: Goals = { calories: 2100, protein: 150, carbs: 220, fat: 70, water: 8 };
+const GOALS_KEY = "zyrafit-goals";
+const waterKey = () => `zyrafit-water-${new Date().toDateString()}`;
+
+export function useGoals() {
+  const [goals, setGoalsState] = useState<Goals>(DEFAULT_GOALS);
+  useEffect(() => {
+    try {
+      setGoalsState({ ...DEFAULT_GOALS, ...JSON.parse(localStorage.getItem(GOALS_KEY) ?? "{}") });
+    } catch {
+      // keep defaults
+    }
+  }, []);
+  const setGoals = (g: Goals) => {
+    setGoalsState(g);
+    localStorage.setItem(GOALS_KEY, JSON.stringify(g));
+  };
+  return { goals, setGoals };
+}
+
+export function useTodayWater() {
+  const [glasses, setGlassesState] = useState(0);
+  useEffect(() => {
+    setGlassesState(Number(localStorage.getItem(waterKey())) || 0);
+  }, []);
+  const setGlasses = (n: number) => {
+    const v = Math.max(0, Math.min(20, n));
+    setGlassesState(v);
+    localStorage.setItem(waterKey(), String(v));
+  };
+  return { glasses, setGlasses };
+}
