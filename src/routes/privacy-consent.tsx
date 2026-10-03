@@ -52,7 +52,7 @@ function PrivacyConsentScreen() {
         </button>
         <button
           type="button"
-          onClick={() => navigate({ to: "/home" })}
+          onClick={() => navigate({ to: "/onboarding-survey" })}
           className="mt-3 h-14 w-full rounded-full bg-[#FFF8E7] text-base font-semibold text-[#1A1A1A]"
         >
           Refuse
