@@ -3,6 +3,7 @@ import { Camera, Check, Edit3, QrCode, Search, Send, X, Loader2, ImagePlus } fro
 import { useEffect, useRef, useState } from "react";
 
 import { Screen } from "@/components/zyra/TabBar";
+import { authedFetch } from "@/lib/auth-fetch";
 import { addToFoodLog } from "@/lib/food-log";
 
 export const Route = createFileRoute("/scan")({
@@ -33,7 +34,7 @@ type FoodItem = {
 type FoodResult = { items: FoodItem[]; notes?: string };
 
 async function recognizeFood(payload: { image?: string; description?: string }): Promise<FoodResult> {
-  const res = await fetch("/api/food-recognition", {
+  const res = await authedFetch("/api/food-recognition", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -139,6 +140,9 @@ function ResultCard({ result }: { result: FoodResult }) {
         </div>
       ))}
       {result.notes && <p className="px-1 text-xs text-muted-foreground">{result.notes}</p>}
+      <p className="px-1 text-[11px] leading-4 text-muted-foreground">
+        Estimates only and can be inaccurate. ZyraFit is not medical advice.
+      </p>
     </div>
   );
 }

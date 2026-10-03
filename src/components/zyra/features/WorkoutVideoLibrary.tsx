@@ -27,7 +27,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { lovable } from "@/integrations/lovable";
+import { AuthForm } from "@/components/zyra/AuthForm";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -67,9 +67,6 @@ export function WorkoutVideoLibrary() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<{ video: WorkoutVideo; url: string } | null>(null);
   const [showSignIn, setShowSignIn] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [authBusy, setAuthBusy] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [category, setCategory] = useState<CategoryId | "all">("all");
   const [favorites, setFavorites] = useState<Set<string>>(() => {
@@ -160,21 +157,6 @@ export function WorkoutVideoLibrary() {
     else setVideos((current) => current.filter((item) => item.id !== video.id));
   };
 
-  const signIn = async () => {
-    setAuthBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setAuthBusy(false);
-    if (error) toast.error(error.message);
-  };
-
-  const signUp = async () => {
-    setAuthBusy(true);
-    const { error } = await supabase.auth.signUp({ email, password });
-    setAuthBusy(false);
-    if (error) toast.error(error.message);
-    else toast.success("Check your email to finish signing up");
-  };
-
   return (
     <section className="mt-6">
       {userId ? (
@@ -261,13 +243,8 @@ export function WorkoutVideoLibrary() {
             <Button variant="ghost" size="icon" className="absolute right-3 top-3" onClick={() => setShowSignIn(false)} aria-label="Close sign in"><X className="h-5 w-5" /></Button>
             <h3 id="video-sign-in-title" className="text-lg font-bold text-foreground">Workout videos</h3>
             <p className="mt-1 pr-8 text-sm text-muted-foreground">Sign in to watch the workout video library.</p>
-            <div className="mt-5 space-y-3">
-              <Input type="email" autoComplete="email" placeholder="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
-              <Input type="password" autoComplete="current-password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />
-              <Button className="w-full" onClick={() => void signIn()} disabled={authBusy || !email || !password}>Sign in</Button>
-              <Button variant="outline" className="w-full" onClick={() => void signUp()} disabled={authBusy || !email || password.length < 6}>Create account</Button>
-              <div className="flex items-center gap-3"><span className="h-px flex-1 bg-border" /><span className="text-xs text-muted-foreground">or</span><span className="h-px flex-1 bg-border" /></div>
-              <Button variant="secondary" className="w-full" onClick={() => void lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })}>Continue with Google</Button>
+            <div className="mt-5">
+              <AuthForm defaultMode="signin" onSuccess={() => setShowSignIn(false)} />
             </div>
           </div>
         </div>

@@ -3,6 +3,8 @@
   "short_name": "ZyraFit",
   "description": "Track nutrition, scan food with AI, and follow guided workout videos.",
   "id": "/",
+  "lang": "en",
+  "categories": ["health", "fitness", "food"],
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
