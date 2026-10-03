@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { surveyQuestions } from "@/components/zyra/onboarding/surveyData";
 import { Screen } from "@/components/zyra/TabBar";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/onboarding-survey")({
   head: () => ({
