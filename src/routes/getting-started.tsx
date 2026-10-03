@@ -46,7 +46,7 @@ function GettingStartedScreen() {
           new heights
         </h1>
         <div className="flex-1" />
-        <Link to="/privacy-consent" className="block">
+        <Link to="/onboarding-survey" className="block">
           <button
             type="button"
             className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#1A1A1A] text-base font-semibold text-white"

@@ -108,7 +108,7 @@ function AccountRows() {
   if (!loaded) return <MenuRow icon={User} title="Account" trailing={<span />} />;
   if (!signedIn) {
     return (
-      <Link to="/auth" className="block">
+      <Link to="/auth" search={{ mode: "signin" }} className="block">
         <MenuRow icon={User} title="Not signed in" trailing={action("Sign in")} />
       </Link>
     );

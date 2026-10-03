@@ -1,12 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState, type TouchEvent } from "react";
-import { Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState, type TouchEvent } from "react";
 
 import coachAsset from "@/assets/onboarding-coach.png.asset.json";
 import logAsset from "@/assets/onboarding-log.png.asset.json";
 import scanAsset from "@/assets/onboarding-scan.png.asset.json";
 import welcomeAsset from "@/assets/onboarding-welcome.png.asset.json";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { hideSplash } from "@/lib/splash";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +25,8 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    // Start downloading the first welcome picture together with the page.
+    links: [{ rel: "preload", as: "image", href: welcomeAsset.url, fetchPriority: "high" }],
   }),
   component: Index,
 });
@@ -60,7 +63,32 @@ const pages: OnboardingPage[] = [
 ];
 
 function Index() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    // Returning users skip the welcome screens. getSession reads the device, so this is near-instant.
+    void supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!active) return;
+        if (data.session) {
+          void navigate({ to: "/home", replace: true }).finally(hideSplash);
+        } else {
+          hideSplash();
+          // Fetch the other welcome pictures in the background so swiping is instant.
+          const warm = () => pages.slice(1).forEach((p) => { const img = new Image(); img.decoding = "async"; img.src = p.image; });
+          if ("requestIdleCallback" in window) window.requestIdleCallback(warm);
+          else setTimeout(warm, 600);
+        }
+      })
+      .catch(hideSplash);
+    return () => {
+      active = false;
+    };
+  }, [navigate]);
+
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const current = pages[page] ?? pages[0];
   if (!current) return null;
@@ -88,6 +116,10 @@ function Index() {
             key={current.image}
             src={current.image}
             alt=""
+            width={1536}
+            height={1024}
+            decoding="async"
+            fetchPriority={page === 0 ? "high" : "auto"}
             className="onboarding-hero h-full max-h-[42svh] w-[82%] object-contain"
           />
         </div>
@@ -119,9 +151,14 @@ function Index() {
           ))}
         </div>
         {page === pages.length - 1 ? (
-          <Link to="/auth" className="block">
-            <Button size="pill">Continue</Button>
-          </Link>
+          <>
+            <Link to="/onboarding-survey" className="block">
+              <Button size="pill">Get started</Button>
+            </Link>
+            <Link to="/auth" search={{ mode: "signin" }} className="mt-3 block py-2 text-center text-sm font-medium text-muted-foreground">
+              I already have an account
+            </Link>
+          </>
         ) : (
           <Button size="pill" onClick={goForward}>Next</Button>
         )}

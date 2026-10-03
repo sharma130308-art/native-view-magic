@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { RegisterServiceWorker } from "@/components/zyra/RegisterServiceWorker";
+import { hideSplash } from "@/lib/splash";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -117,6 +118,12 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        {/* Launch splash: plain HTML/CSS so it paints instantly, before any JavaScript. Only visible in the installed app. */}
+        <style dangerouslySetInnerHTML={{ __html: SPLASH_CSS }} />
+        <div id="app-splash" aria-hidden="true">
+          <img src="/icon-192.png" alt="" width={156} height={156} />
+        </div>
+        <script dangerouslySetInnerHTML={{ __html: SPLASH_FAILSAFE }} />
         {children}
         <Scripts />
       </body>
@@ -124,8 +131,28 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const SPLASH_CSS = `
+#app-splash{display:none}
+@media (display-mode: standalone), (display-mode: fullscreen){
+  #app-splash{display:flex;position:fixed;inset:0;z-index:2147483647;align-items:center;justify-content:center;
+    background:#0a0e27;transition:opacity 220ms ease-out,visibility 0s linear 220ms}
+  #app-splash img{width:156px;height:156px;clip-path:inset(19% round 15%);animation:zf-splash 900ms ease-in-out infinite alternate}
+  html[data-app-ready] #app-splash{opacity:0;visibility:hidden;pointer-events:none}
+}
+@keyframes zf-splash{from{transform:scale(1)}to{transform:scale(1.06)}}
+@media (prefers-reduced-motion: reduce){#app-splash img{animation:none}}
+`;
+
+// Never let the splash stay up if something goes wrong.
+const SPLASH_FAILSAFE = "setTimeout(function(){document.documentElement.setAttribute('data-app-ready','')},4000)";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    // The welcome screen hides the splash itself, after it has checked whether the person is signed in.
+    if (window.location.pathname !== "/") hideSplash();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

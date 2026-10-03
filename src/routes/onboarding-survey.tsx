@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, Check } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { surveyQuestions } from "@/components/zyra/onboarding/surveyData";
 import { Screen } from "@/components/zyra/TabBar";
 import { supabase } from "@/integrations/supabase/client";
+import { savePendingSurvey } from "@/lib/onboarding";
 
 export const Route = createFileRoute("/onboarding-survey")({
   head: () => ({
@@ -24,6 +25,11 @@ function OnboardingSurveyScreen() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    void supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
+  }, []);
 
   const total = surveyQuestions.length;
   const question = surveyQuestions[index] ?? surveyQuestions[0]!;
@@ -35,16 +41,21 @@ function OnboardingSurveyScreen() {
   const canContinue = question.required ? isAnswered : true;
 
   const finish = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      // Already signed in (for example after confirming email on another device): save and go straight in.
       await supabase.from("profiles").upsert({
-        id: user.id,
+        id: session.user.id,
         onboarding_answers: answers,
         onboarding_completed: true,
         updated_at: new Date().toISOString(),
       });
+      void navigate({ to: "/home", replace: true });
+      return;
     }
-    navigate({ to: "/ready-to-start" });
+    // New person: keep the answers on this device and ask them to create an account to save their plan.
+    savePendingSurvey(answers);
+    void navigate({ to: "/auth" });
   };
 
   const goNext = () => {
@@ -56,7 +67,10 @@ function OnboardingSurveyScreen() {
   };
 
   const goBack = () => {
-    if (index === 0) return;
+    if (index === 0) {
+      void navigate({ to: "/" });
+      return;
+    }
     setIndex((i) => i - 1);
   };
 
@@ -94,7 +108,7 @@ function OnboardingSurveyScreen() {
           className="flex h-11 w-11 items-center justify-center"
           aria-label="Back"
         >
-          {index > 0 ? <ChevronLeft className="h-5 w-5 text-muted-foreground" /> : null}
+          <ChevronLeft className="h-5 w-5 text-muted-foreground" />
         </button>
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
           <div
@@ -152,7 +166,7 @@ function OnboardingSurveyScreen() {
           onClick={goNext}
           className="h-14 w-full rounded-full bg-primary text-base font-semibold text-primary-foreground disabled:bg-muted disabled:text-muted-foreground"
         >
-          {isLast ? "Done" : "Continue"}
+          {isLast ? (signedIn ? "Done" : "Create my account") : "Continue"}
         </button>
         {!question.required ? (
           <button type="button" onClick={skip} className="mt-2 w-full py-2 text-sm font-medium text-muted-foreground">
