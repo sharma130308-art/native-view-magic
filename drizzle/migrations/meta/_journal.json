@@ -43,6 +43,13 @@
       "when": 1790958462081,
       "tag": "0005_routine_owner_lock",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791016369730,
+      "tag": "0006_create_profiles",
+      "breakpoints": true
     }
   ]
 }
