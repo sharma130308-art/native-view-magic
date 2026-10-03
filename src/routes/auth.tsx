@@ -30,9 +30,16 @@ function AuthPage() {
   const [sent, setSent] = useState(false);
 
   useEffect(() => {
-    const go = () => void navigate({ to: "/privacy-consent", replace: true });
-    supabase.auth.getSession().then(({ data }) => data.session && go());
-    const { data } = supabase.auth.onAuthStateChange((_e, session) => session && go());
+    const go = async (userId: string) => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_completed")
+        .eq("id", userId)
+        .maybeSingle();
+      void navigate({ to: profile?.onboarding_completed ? "/home" : "/privacy-consent", replace: true });
+    };
+    supabase.auth.getSession().then(({ data }) => data.session && void go(data.session.user.id));
+    const { data } = supabase.auth.onAuthStateChange((_e, session) => session && void go(session.user.id));
     return () => data.subscription.unsubscribe();
   }, [navigate]);
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { surveyQuestions } from "@/components/zyra/onboarding/surveyData";
 import { Screen } from "@/components/zyra/TabBar";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/onboarding-survey")({
   head: () => ({
@@ -33,7 +34,18 @@ function OnboardingSurveyScreen() {
     question.type === "single" ? typeof answer === "string" : Array.isArray(answer) && answer.length > 0;
   const canContinue = question.required ? isAnswered : true;
 
-  const finish = () => navigate({ to: "/ready-to-start" });
+  const finish = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("profiles").upsert({
+        id: user.id,
+        onboarding_answers: answers,
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      });
+    }
+    navigate({ to: "/ready-to-start" });
+  };
 
   const goNext = () => {
     if (isLast) {
