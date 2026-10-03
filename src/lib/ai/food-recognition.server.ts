@@ -2,6 +2,7 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { generateText } from "ai";
 import { z } from "zod";
 
+import { guardAiRequest } from "./require-user.server";
 import {
   createLovableAiGatewayRunIdFetch,
   getLovableAiGatewayRunId,
@@ -49,6 +50,9 @@ Respond with ONLY valid JSON, no markdown fences, exactly this shape:
 All nutrition values must be plain numbers.`;
 
 export async function handleFoodRecognition(request: Request) {
+  const guard = await guardAiRequest(request, { name: "food-recognition", limit: 30 });
+  if (guard instanceof Response) return guard;
+
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return Response.json({ error: "AI is not configured." }, { status: 401 });
 

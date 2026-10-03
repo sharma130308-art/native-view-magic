@@ -1,5 +1,6 @@
 import { Egg, Flame, Droplet, UtensilsCrossed, Wheat } from "lucide-react";
 import { ProgressRing } from "./ProgressRing";
+import type { WeekDay } from "@/lib/food-log";
 
 export function StreakChip({ streak }: { streak: number }) {
   return (
@@ -10,41 +11,33 @@ export function StreakChip({ streak }: { streak: number }) {
   );
 }
 
-const WEEK_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const PLACEHOLDER_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-export function WeekDaySelector({ todayIndex = 3 }: { todayIndex?: number }) {
-  const calories = [1850, 2100, 1750, 1420, 0, 0, 0];
-  const targets = [2000, 2000, 2000, 2000, 2000, 2000, 2000];
+export function WeekDaySelector({ days, target }: { days: WeekDay[] | null; target: number }) {
+  const list: Array<WeekDay | { label: string }> = days ?? PLACEHOLDER_LABELS.map((label) => ({ label }));
   return (
     <div className="flex">
-      {WEEK_LABELS.map((label, i) => {
-        const isToday = i === todayIndex;
-        const isFuture = i > todayIndex;
-        const cal = calories[i] ?? 0;
-        const tgt = targets[i] ?? 2000;
-        const ratio = cal > 0 ? cal / tgt : 0;
+      {list.map((day) => {
+        const full = "date" in day ? day : null;
+        const isToday = full?.isToday ?? false;
+        const cal = full?.calories ?? 0;
+        const ratio = cal > 0 && target > 0 ? cal / target : 0;
         let color = "rgb(148 163 184 / 0.35)";
         let progress = 0;
         if (isToday) {
-          color = "hsl(var(--primary))";
-          progress = ratio;
-        } else if (isFuture || cal === 0) {
-          color = "rgb(148 163 184 / 0.35)";
-          progress = 0;
-        } else if (ratio > 1.08) {
-          color = "#EF5350";
-          progress = 1;
-        } else {
-          color = "#34C759";
-          progress = ratio;
+          color = "var(--primary)";
+          progress = Math.min(ratio, 1);
+        } else if (full && !full.isFuture && cal > 0) {
+          color = ratio > 1.08 ? "#EF5350" : "#34C759";
+          progress = Math.min(ratio, 1);
         }
         return (
-          <div key={label} className="flex flex-1 flex-col items-center gap-1.5">
+          <div key={day.label} className="flex flex-1 flex-col items-center gap-1.5">
             <span className={`text-xs ${isToday ? "font-bold text-foreground" : "font-medium text-muted-foreground"}`}>
-              {label}
+              {day.label}
             </span>
             <ProgressRing progress={progress} size={30} strokeWidth={2.5} color={color} bgColor="transparent">
-              <span className="text-[11px] font-semibold text-foreground">{i + 18}</span>
+              <span className="text-[11px] font-semibold text-foreground">{full ? full.date : ""}</span>
             </ProgressRing>
           </div>
         );
@@ -66,7 +59,7 @@ export function CalorieSummaryCard({ current, target }: { current: number; targe
         <p className="mt-1 text-sm text-muted-foreground">Calories eaten</p>
         <p className="mt-1.5 text-xs font-medium text-muted-foreground/80">{remaining} kcal left</p>
       </div>
-      <ProgressRing progress={progress} size={104} strokeWidth={11} color="hsl(var(--primary))" bgColor="rgb(148 163 184 / 0.18)">
+      <ProgressRing progress={progress} size={104} strokeWidth={11} color="var(--primary)" bgColor="rgb(148 163 184 / 0.18)">
         <Flame className="h-8 w-8 text-primary" />
       </ProgressRing>
     </div>

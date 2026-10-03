@@ -1,8 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Bell,
   ChevronRight,
-  CreditCard,
   Crown,
   Database,
   Delete,
@@ -13,18 +12,31 @@ import {
   Mail,
   Moon,
   Palette,
-  ReceiptText,
-  RotateCcw,
   ShieldCheck,
   Star,
   Target,
+  Trash2,
   User,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { MenuCard, MenuRow, MenuSwitchRow } from "@/components/zyra/features/MenuCard";
 import { Screen } from "@/components/zyra/TabBar";
+import { supabase } from "@/integrations/supabase/client";
+import { authedFetch } from "@/lib/auth-fetch";
+import { clearLocalData, exportLocalData } from "@/lib/local-data";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -42,6 +54,143 @@ export const Route = createFileRoute("/settings")({
   }),
   component: SettingsScreen,
 });
+
+function AccountRows() {
+  const navigate = useNavigate();
+  const [loaded, setLoaded] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const apply = (session: { user: { email?: string | null } } | null) => {
+      if (!active) return;
+      setSignedIn(Boolean(session));
+      setEmail(session?.user.email ?? null);
+      setLoaded(true);
+    };
+    void supabase.auth.getSession().then(({ data }) => apply(data.session));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => apply(session));
+    return () => {
+      active = false;
+      data.subscription.unsubscribe();
+    };
+  }, []);
+
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) toast.error(error.message);
+    else toast.success("Signed out");
+  };
+
+  const deleteAccount = async () => {
+    setBusy(true);
+    try {
+      const res = await authedFetch("/api/delete-account", { method: "POST" });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) return void toast.error(data.error ?? "Could not delete your account. Please try again.");
+      clearLocalData();
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+      setConfirmDelete(false);
+      toast.success("Your account and data were deleted");
+      void navigate({ to: "/" });
+    } catch {
+      toast.error("Could not delete your account. Check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const action = (label: string) => <span className="text-sm font-medium text-primary">{label}</span>;
+
+  if (!loaded) return <MenuRow icon={User} title="Account" trailing={<span />} />;
+  if (!signedIn) {
+    return (
+      <Link to="/auth" className="block">
+        <MenuRow icon={User} title="Not signed in" trailing={action("Sign in")} />
+      </Link>
+    );
+  }
+  return (
+    <>
+      <MenuRow icon={User} title={email ?? "Signed in"} trailing={action("Sign out")} onClick={() => void signOut()} />
+      <MenuRow
+        icon={Trash2}
+        title="Delete account"
+        trailing={<span className="text-sm font-medium text-destructive">Delete</span>}
+        onClick={() => setConfirmDelete(true)}
+      />
+      <AlertDialog open={confirmDelete} onOpenChange={(open) => !busy && setConfirmDelete(open)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently deletes your account, your quiz answers, your workout routines and the invitations tied
+              to your email, and clears ZyraFit data stored on this device. It cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={busy}
+              onClick={(event) => {
+                event.preventDefault();
+                void deleteAccount();
+              }}
+            >
+              {busy ? "Deleting…" : "Delete everything"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+function DataRows() {
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  const exportData = () => {
+    const url = URL.createObjectURL(new Blob([exportLocalData()], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "zyrafit-data.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <>
+      <MenuRow icon={Download} title="Export Data" onClick={exportData} />
+      <MenuRow icon={Delete} title="Reset Progress" onClick={() => setConfirmReset(true)} />
+      <AlertDialog open={confirmReset} onOpenChange={setConfirmReset}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset progress?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This clears your food log, goals, water tracking and favorites on this device. Your account is not
+              deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                clearLocalData();
+                toast.success("Progress reset");
+                window.location.reload();
+              }}
+            >
+              Reset
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
 
 function SettingsScreen() {
   const [metric, setMetric] = useState(true);
@@ -71,7 +220,7 @@ function SettingsScreen() {
             <Crown className="h-5 w-5" />
             <div className="flex-1">
               <p className="text-sm font-semibold">Go Pro</p>
-              <p className="text-xs opacity-90">Unlock unlimited scans & insights</p>
+              <p className="text-xs opacity-90">Premium features are coming soon</p>
             </div>
             <ChevronRight className="h-4 w-4" />
           </Link>
@@ -138,33 +287,28 @@ function SettingsScreen() {
               </span>
             }
           >
-            <MenuRow icon={Download} title="Export Data" />
-            <MenuRow icon={Delete} title="Reset Progress" />
+            <DataRows />
           </MenuCard>
 
           <MenuCard>
             <MenuRow icon={HelpCircle} title="FAQ" />
             <MenuRow icon={Star} title="Rate Us" />
-            <MenuRow icon={Mail} title="Support" />
+            <a href="mailto:zyrafitsupport@gmail.com?subject=ZyraFit%20support" className="block">
+              <MenuRow icon={Mail} title="Support" />
+            </a>
           </MenuCard>
 
           <MenuCard>
-            <MenuRow icon={RotateCcw} title="Restore Purchase" />
-            <MenuRow icon={CreditCard} title="Manage Subscriptions" />
-            <Link to="/purchase-history" className="block">
-              <MenuRow icon={ReceiptText} title="Purchase History" />
-            </Link>
-          </MenuCard>
-
-          <MenuCard>
-            <Link to="/privacy-settings" className="block">
+            <Link to="/privacy" className="block">
               <MenuRow icon={ShieldCheck} title="Privacy Policy" />
             </Link>
-            <MenuRow icon={FileText} title="Terms of Use" />
+            <Link to="/terms" className="block">
+              <MenuRow icon={FileText} title="Terms of Use" />
+            </Link>
           </MenuCard>
 
           <MenuCard>
-            <MenuRow icon={User} title="Not signed in" trailing={<span />} />
+            <AccountRows />
           </MenuCard>
         </div>
       </div>

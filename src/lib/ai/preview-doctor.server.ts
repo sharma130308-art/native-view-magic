@@ -2,6 +2,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { z } from "zod";
 
+import { guardAiRequest } from "./require-user.server";
 import {
   createLovableAiGatewayRunIdFetch,
   getLovableAiGatewayRunId,
@@ -28,6 +29,12 @@ You only diagnose — never claim to have changed anything. Look at the screensh
 Consider: blank white page, build/compile errors, runtime error overlays, missing images, content clipped by viewport height or safe areas, zero-size containers, wrong viewport (desktop vs mobile), dark text on dark background, loading spinners stuck, wrong URL/route, 404 pages. Be concise and specific to what is visible.`;
 
 export async function handlePreviewDoctor(request: Request) {
+  // Developer tool: not served from the published app.
+  if (!import.meta.env.DEV) return Response.json({ error: "Not found" }, { status: 404 });
+
+  const guard = await guardAiRequest(request, { name: "preview-doctor", limit: 10 });
+  if (guard instanceof Response) return guard;
+
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return Response.json({ error: "AI is not configured." }, { status: 401 });
 

@@ -56,10 +56,10 @@ function GettingStartedScreen() {
           </button>
         </Link>
         <p className="mt-5 text-center text-xs leading-6 text-[#666]">
-          By continuing, you accept our <span className="font-medium text-[#1A1A1A] underline">Terms of Service</span> and
+          By continuing, you accept our <Link to="/terms" className="font-medium text-[#1A1A1A] underline">Terms of Use</Link> and
           acknowledge
           <br />
-          receipt of our <span className="font-medium text-[#1A1A1A] underline">Privacy Policy</span>.
+          receipt of our <Link to="/privacy" className="font-medium text-[#1A1A1A] underline">Privacy Policy</Link>.
         </p>
       </div>
     </div>

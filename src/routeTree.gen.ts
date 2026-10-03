@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DeleteAccountRouteImport } from './routes/delete-account'
 import { Route as FoodLoggingRouteImport } from './routes/food-logging'
 import { Route as GettingStartedRouteImport } from './routes/getting-started'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -31,7 +32,9 @@ import { Route as ScanRouteImport } from './routes/scan'
 import { Route as ScreensRouteImport } from './routes/screens'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SplashRouteImport } from './routes/splash'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WorkoutRouteImport } from './routes/workout'
+import { Route as ApiDeleteAccountRouteImport } from './routes/api/delete-account'
 import { Route as ApiFoodRecognitionRouteImport } from './routes/api/food-recognition'
 import { Route as ApiPreviewDoctorRouteImport } from './routes/api/preview-doctor'
 
@@ -43,6 +46,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeleteAccountRoute = DeleteAccountRouteImport.update({
+  id: '/delete-account',
+  path: '/delete-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FoodLoggingRoute = FoodLoggingRouteImport.update({
@@ -145,9 +153,19 @@ const SplashRoute = SplashRouteImport.update({
   path: '/splash',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkoutRoute = WorkoutRouteImport.update({
   id: '/workout',
   path: '/workout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDeleteAccountRoute = ApiDeleteAccountRouteImport.update({
+  id: '/api/delete-account',
+  path: '/api/delete-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiFoodRecognitionRoute = ApiFoodRecognitionRouteImport.update({
@@ -164,6 +182,7 @@ const ApiPreviewDoctorRoute = ApiPreviewDoctorRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/food-logging': typeof FoodLoggingRoute
   '/getting-started': typeof GettingStartedRoute
   '/history': typeof HistoryRoute
@@ -184,13 +203,16 @@ export interface FileRoutesByFullPath {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/splash': typeof SplashRoute
+  '/terms': typeof TermsRoute
   '/workout': typeof WorkoutRoute
+  '/api/delete-account': typeof ApiDeleteAccountRoute
   '/api/food-recognition': typeof ApiFoodRecognitionRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/food-logging': typeof FoodLoggingRoute
   '/getting-started': typeof GettingStartedRoute
   '/history': typeof HistoryRoute
@@ -211,7 +233,9 @@ export interface FileRoutesByTo {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/splash': typeof SplashRoute
+  '/terms': typeof TermsRoute
   '/workout': typeof WorkoutRoute
+  '/api/delete-account': typeof ApiDeleteAccountRoute
   '/api/food-recognition': typeof ApiFoodRecognitionRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
@@ -219,6 +243,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/food-logging': typeof FoodLoggingRoute
   '/getting-started': typeof GettingStartedRoute
   '/history': typeof HistoryRoute
@@ -239,7 +264,9 @@ export interface FileRoutesById {
   '/screens': typeof ScreensRoute
   '/settings': typeof SettingsRoute
   '/splash': typeof SplashRoute
+  '/terms': typeof TermsRoute
   '/workout': typeof WorkoutRoute
+  '/api/delete-account': typeof ApiDeleteAccountRoute
   '/api/food-recognition': typeof ApiFoodRecognitionRoute
   '/api/preview-doctor': typeof ApiPreviewDoctorRoute
 }
@@ -248,6 +275,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/delete-account'
     | '/food-logging'
     | '/getting-started'
     | '/history'
@@ -268,13 +296,16 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/splash'
+    | '/terms'
     | '/workout'
+    | '/api/delete-account'
     | '/api/food-recognition'
     | '/api/preview-doctor'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/delete-account'
     | '/food-logging'
     | '/getting-started'
     | '/history'
@@ -295,13 +326,16 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/splash'
+    | '/terms'
     | '/workout'
+    | '/api/delete-account'
     | '/api/food-recognition'
     | '/api/preview-doctor'
   id:
     | '__root__'
     | '/'
     | '/auth'
+    | '/delete-account'
     | '/food-logging'
     | '/getting-started'
     | '/history'
@@ -322,7 +356,9 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/splash'
+    | '/terms'
     | '/workout'
+    | '/api/delete-account'
     | '/api/food-recognition'
     | '/api/preview-doctor'
   fileRoutesById: FileRoutesById
@@ -330,6 +366,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  DeleteAccountRoute: typeof DeleteAccountRoute
   FoodLoggingRoute: typeof FoodLoggingRoute
   GettingStartedRoute: typeof GettingStartedRoute
   HistoryRoute: typeof HistoryRoute
@@ -350,7 +387,9 @@ export interface RootRouteChildren {
   ScreensRoute: typeof ScreensRoute
   SettingsRoute: typeof SettingsRoute
   SplashRoute: typeof SplashRoute
+  TermsRoute: typeof TermsRoute
   WorkoutRoute: typeof WorkoutRoute
+  ApiDeleteAccountRoute: typeof ApiDeleteAccountRoute
   ApiFoodRecognitionRoute: typeof ApiFoodRecognitionRoute
   ApiPreviewDoctorRoute: typeof ApiPreviewDoctorRoute
 }
@@ -369,6 +408,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/delete-account': {
+      id: '/delete-account'
+      path: '/delete-account'
+      fullPath: '/delete-account'
+      preLoaderRoute: typeof DeleteAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/food-logging': {
@@ -511,11 +557,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplashRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workout': {
       id: '/workout'
       path: '/workout'
       fullPath: '/workout'
       preLoaderRoute: typeof WorkoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/delete-account': {
+      id: '/api/delete-account'
+      path: '/api/delete-account'
+      fullPath: '/api/delete-account'
+      preLoaderRoute: typeof ApiDeleteAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/food-recognition': {
@@ -538,6 +598,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  DeleteAccountRoute: DeleteAccountRoute,
   FoodLoggingRoute: FoodLoggingRoute,
   GettingStartedRoute: GettingStartedRoute,
   HistoryRoute: HistoryRoute,
@@ -558,7 +619,9 @@ const rootRouteChildren: RootRouteChildren = {
   ScreensRoute: ScreensRoute,
   SettingsRoute: SettingsRoute,
   SplashRoute: SplashRoute,
+  TermsRoute: TermsRoute,
   WorkoutRoute: WorkoutRoute,
+  ApiDeleteAccountRoute: ApiDeleteAccountRoute,
   ApiFoodRecognitionRoute: ApiFoodRecognitionRoute,
   ApiPreviewDoctorRoute: ApiPreviewDoctorRoute,
 }

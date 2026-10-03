@@ -73,3 +73,45 @@ export function useTodayWater() {
   };
   return { glasses, setGlasses };
 }
+
+export type WeekDay = { label: string; date: number; calories: number; isToday: boolean; isFuture: boolean };
+
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+
+/** This week (Sunday to Saturday) and the current logging streak, computed from the saved food log. */
+export function useWeekSummary() {
+  const [summary, setSummary] = useState<{ days: WeekDay[]; streak: number } | null>(null);
+  useEffect(() => {
+    const log = readFoodLog();
+    const perDay = new Map<string, number>();
+    for (const entry of log) {
+      const key = dayKey(new Date(entry.at));
+      const kcal = entry.items.reduce((sum, item) => sum + (item.calories || 0), 0);
+      perDay.set(key, (perDay.get(key) ?? 0) + kcal);
+    }
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
+    const days: WeekDay[] = DAY_LABELS.map((label, i) => {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      return {
+        label,
+        date: d.getDate(),
+        calories: perDay.get(dayKey(d)) ?? 0,
+        isToday: i === today.getDay(),
+        isFuture: i > today.getDay(),
+      };
+    });
+    // Streak: consecutive days with at least one logged meal, counting back from today
+    // (or from yesterday if nothing is logged yet today).
+    let streak = 0;
+    const cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if (!perDay.has(dayKey(cursor))) cursor.setDate(cursor.getDate() - 1);
+    while (perDay.has(dayKey(cursor))) {
+      streak += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    setSummary({ days, streak });
+  }, []);
+  return summary;
+}

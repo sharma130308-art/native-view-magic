@@ -1,9 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useRef, useState, type ChangeEvent } from "react";
 
 import { Button } from "@/components/ui/button";
+import { authedFetch } from "@/lib/auth-fetch";
 
 export const Route = createFileRoute("/preview-doctor")({
+  // Developer tool: available in the editor preview, hidden in the published app.
+  beforeLoad: () => {
+    if (!import.meta.env.DEV) throw redirect({ to: "/" });
+  },
   head: () => ({
     meta: [
       { title: "Preview Doctor — ZyraFit" },
@@ -49,7 +54,7 @@ function PreviewDoctor() {
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      const res = await fetch("/api/preview-doctor", {
+      const res = await authedFetch("/api/preview-doctor", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ image, notes }),

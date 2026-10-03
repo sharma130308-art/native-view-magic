@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { BarChart3, Dumbbell, Home, ScanLine, User } from "lucide-react";
 
+import { tapHaptic } from "@/lib/haptics";
+
 type Tab = "home" | "workout" | "insights" | "profile";
 
 const tabs = [
@@ -16,7 +18,8 @@ export function TabBar({ active }: { active: Tab }) {
     <Link
       key={t.key}
       to={t.to}
-      className={`flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] ${
+      onClick={tapHaptic}
+      className={`press flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] ${
         active === t.key ? "font-semibold text-primary" : "text-muted-foreground"
       }`}
     >
@@ -31,7 +34,8 @@ export function TabBar({ active }: { active: Tab }) {
         <Link
           to="/scan"
           aria-label="Scan"
-          className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
+          onClick={tapHaptic}
+          className="press -mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
         >
           <ScanLine className="h-6 w-6" />
         </Link>
