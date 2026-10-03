@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LoaderCircle,
   LogIn,
@@ -265,26 +265,54 @@ export function WorkoutVideoLibrary() {
   );
 }
 function VideoThumb({ path }: { path: string }) {
+  const box = useRef<HTMLDivElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
+  const [near, setNear] = useState(false);
   const [url, setUrl] = useState<string | null>(null);
+
+  // Only start loading when the card is close to the screen; play only while it is visible.
   useEffect(() => {
+    const el = box.current;
+    if (!el || typeof IntersectionObserver === "undefined") return setNear(true);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        if (entry.isIntersecting) setNear(true);
+        const v = video.current;
+        if (!v) return;
+        if (entry.isIntersecting) void v.play().catch(() => undefined);
+        else v.pause();
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [url]);
+
+  useEffect(() => {
+    if (!near) return;
     let active = true;
     void supabase.storage.from("workout-videos").createSignedUrl(path, 3600).then(({ data }) => {
       if (active && data?.signedUrl) setUrl(`${data.signedUrl}#t=0.5`);
     });
     return () => { active = false; };
-  }, [path]);
-  if (!url) return null;
+  }, [near, path]);
+
   return (
-    <video
-      src={url}
-      muted
-      loop
-      autoPlay
-      playsInline
-      preload="auto"
-      onCanPlay={(event) => void event.currentTarget.play().catch(() => undefined)}
-      className="absolute inset-0 h-full w-full object-cover"
-      aria-hidden="true"
-    />
+    <div ref={box} className="absolute inset-0">
+      {url ? (
+        <video
+          ref={video}
+          src={url}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          onCanPlay={(event) => void event.currentTarget.play().catch(() => undefined)}
+          className="h-full w-full object-cover"
+          aria-hidden="true"
+        />
+      ) : null}
+    </div>
   );
 }
