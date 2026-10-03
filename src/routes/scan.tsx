@@ -525,6 +525,7 @@ function DescribeFoodView() {
       />
       {error && <ErrorText message={error} />}
       {result && <ResultCard result={result} />}
+      {result && <AddToLogButton result={result} />}
       <button
         type="button"
         onClick={() => void analyze()}
