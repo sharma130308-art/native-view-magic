@@ -11,7 +11,7 @@ import {
   WaterIntakeWidget,
   WeekDaySelector,
 } from "@/components/zyra/tabs/DashboardWidgets";
-import { type Goals, useGoals, useTodayLog, useTodayWater } from "@/lib/food-log";
+import { type Goals, useGoals, useTodayLog, useTodayWater, useWeekSummary } from "@/lib/food-log";
 
 function GoalsSheet({ goals, onClose, onSave }: { goals: Goals; onClose: () => void; onSave: (g: Goals) => void }) {
   const [draft, setDraft] = useState(goals);
@@ -76,7 +76,8 @@ function HomeScreen() {
   const { glasses, setGlasses } = useTodayWater();
   const [editing, setEditing] = useState(false);
   const currentCalories = Math.round(totals.calories);
-  const streak = 5;
+  const week = useWeekSummary();
+  const streak = week?.streak ?? 0;
   const meals = [...entries].reverse().map((e) => ({
     name: e.items.map((i) => i.name).join(", ") || "Meal",
     calories: Math.round(e.items.reduce((s, i) => s + (i.calories || 0), 0)),
@@ -99,7 +100,7 @@ function HomeScreen() {
           </button>
           {streak > 0 && <StreakChip streak={streak} />}
         </div>
-        <WeekDaySelector />
+        <WeekDaySelector days={week?.days ?? null} target={goals.calories} />
         <CalorieSummaryCard current={currentCalories} target={goals.calories} />
         <div className="flex gap-3">
           <MacroRingCard label="Protein" current={Math.round(totals.protein)} target={goals.protein} color="#FF6B6B" icon={Egg} />
