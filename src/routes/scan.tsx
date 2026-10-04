@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Camera, Check, Edit3, QrCode, Search, Send, X, Loader2, ImagePlus } from "lucide-react";
+import { Camera, Check, Edit3, Flashlight, FlashlightOff, QrCode, Search, Send, X, Loader2, ImagePlus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Screen } from "@/components/zyra/TabBar";
 import { authedFetch } from "@/lib/auth-fetch";
+import { isValidProductCode, lookupVariants, startBarcodeScanner, type BarcodeScanner } from "@/lib/barcode";
 import { addToFoodLog } from "@/lib/food-log";
 
 export const Route = createFileRoute("/scan")({
@@ -326,26 +327,55 @@ function PhotoCaptureView() {
   );
 }
 
+async function fetchProduct(code: string) {
+  const fields = "product_name,brands,serving_size,nutriments";
+  const res = await fetch(
+    `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=${fields}`,
+  );
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error("server");
+  const data = (await res.json().catch(() => ({}))) as { status?: number; product?: Record<string, unknown> };
+  return data.status === 1 && data.product ? data.product : null;
+}
+
 async function lookupBarcode(code: string): Promise<FoodResult> {
-  const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json`);
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok || data.status !== 1 || !data.product) throw new Error(`Product ${code} not found`);
-  const p = data.product;
-  const n = p.nutriments ?? {};
-  const per = n["energy-kcal_serving"] != null;
-  const pick = (k: string) => Number(per ? n[`${k}_serving`] : n[`${k}_100g`]) || 0;
+  let p: Record<string, unknown> | null = null;
+  try {
+    for (const variant of lookupVariants(code)) {
+      p = await fetchProduct(variant);
+      if (p) break;
+    }
+  } catch {
+    throw new Error("Couldn't reach the food database. Check your connection and try again.");
+  }
+  if (!p) {
+    throw new Error(`We couldn't find barcode ${code}. Try "Describe it instead", or take a photo of the food.`);
+  }
+  const n = (p["nutriments"] ?? {}) as Record<string, unknown>;
+  const num = (k: string) => {
+    const v = Number(n[k]);
+    return Number.isFinite(v) ? v : null;
+  };
+  // Prefer per-serving values when the label has them, otherwise per 100 g.
+  const per = num("energy-kcal_serving") != null || num("energy-kj_serving") != null ? "serving" : "100g";
+  const kcal = num(`energy-kcal_${per}`) ?? (num(`energy-kj_${per}`) != null ? (num(`energy-kj_${per}`) as number) / 4.184 : null);
+  const pick = (k: string) => Math.round((num(`${k}_${per}`) ?? 0) * 10) / 10;
+  const name = [p["product_name"], p["brands"]].filter((v) => typeof v === "string" && v.trim()).join(" · ");
   return {
     items: [
       {
-        name: [p.product_name, p.brands].filter(Boolean).join(" · ") || `Product ${code}`,
-        serving: per ? p.serving_size ?? "1 serving" : "100 g",
-        calories: pick("energy-kcal"),
+        name: name || `Product ${code}`,
+        serving: per === "serving" ? String(p["serving_size"] ?? "1 serving") : "100 g",
+        calories: Math.round(kcal ?? 0),
         protein: pick("proteins"),
         carbs: pick("carbohydrates"),
         fat: pick("fat"),
       },
     ],
-    notes: `Barcode ${code}`,
+    notes:
+      kcal == null
+        ? `Barcode ${code}. This product has no calorie data in the database — please check the label.`
+        : `Barcode ${code}. Values per ${per === "serving" ? "serving" : "100 g"} from Open Food Facts.`,
   };
 }
 
@@ -357,6 +387,9 @@ function BarcodeView({ onDescribeInstead }: { onDescribeInstead: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [manual, setManual] = useState("");
   const [scanKey, setScanKey] = useState(0);
+  const [hasTorch, setHasTorch] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
+  const scannerRef = useRef<BarcodeScanner | null>(null);
 
   const lookup = async (c: string) => {
     setCode(c);
@@ -374,34 +407,45 @@ function BarcodeView({ onDescribeInstead }: { onDescribeInstead: () => void }) {
 
   useEffect(() => {
     if (code) return;
-    let controls: { stop: () => void } | null = null;
     let cancelled = false;
+    setTorchOn(false);
     (async () => {
+      const video = videoRef.current;
+      if (!video) return;
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setError("This device can't open the camera here — type the barcode number below.");
+        return;
+      }
       try {
-        const { BrowserMultiFormatReader } = await import("@zxing/browser");
-        const reader = new BrowserMultiFormatReader();
-        if (!videoRef.current || cancelled) return;
-        controls = await reader.decodeFromConstraints(
-          { video: { facingMode: { ideal: "environment" } }, audio: false },
-          videoRef.current,
-          (res) => {
-            if (res && !cancelled) {
-              cancelled = true;
-              controls?.stop();
-              void lookup(res.getText());
-            }
-          },
+        const scanner = await startBarcodeScanner(video, (c) => {
+          if (!cancelled) void lookup(c);
+        });
+        if (cancelled) return scanner.stop();
+        scannerRef.current = scanner;
+        setHasTorch(scanner.hasTorch);
+      } catch (e) {
+        const name = e instanceof DOMException ? e.name : "";
+        setError(
+          name === "NotAllowedError" || name === "SecurityError"
+            ? "Camera access is blocked. Allow the camera for ZyraFit in your phone's settings, or type the barcode below."
+            : name === "NotReadableError"
+              ? "Another app is using the camera. Close it and tap Scan again, or type the barcode below."
+              : "Camera not available — type the barcode number below.",
         );
-        if (cancelled) controls.stop();
-      } catch {
-        setError("Camera not available — type the barcode number below.");
       }
     })();
     return () => {
       cancelled = true;
-      controls?.stop();
+      scannerRef.current?.stop();
+      scannerRef.current = null;
+      setHasTorch(false);
     };
   }, [code, scanKey]);
+
+  const toggleTorch = async () => {
+    const next = !torchOn;
+    if (await scannerRef.current?.setTorch(next)) setTorchOn(next);
+  };
 
   const rescan = () => {
     setCode(null);
@@ -414,9 +458,19 @@ function BarcodeView({ onDescribeInstead }: { onDescribeInstead: () => void }) {
     <div className="flex h-full flex-col gap-3">
       <div className={`relative overflow-hidden rounded-3xl bg-black ${code ? "h-40" : "min-h-56 flex-1"}`}>
         {!code && <video ref={videoRef} muted playsInline autoPlay className="absolute inset-0 h-full w-full object-cover" />}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-28 w-56 rounded-2xl border-[3px] border-white/90" />
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="h-28 w-64 rounded-2xl border-[3px] border-white/90" />
         </div>
+        {!code && hasTorch && (
+          <button
+            type="button"
+            onClick={() => void toggleTorch()}
+            aria-label={torchOn ? "Turn flashlight off" : "Turn flashlight on"}
+            className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-white"
+          >
+            {torchOn ? <FlashlightOff className="h-5 w-5" /> : <Flashlight className="h-5 w-5" />}
+          </button>
+        )}
         {busy && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60">
             <Loader2 className="h-8 w-8 animate-spin text-white" />
@@ -427,7 +481,11 @@ function BarcodeView({ onDescribeInstead }: { onDescribeInstead: () => void }) {
           <p className="absolute inset-x-0 bottom-3 text-center text-sm text-white/80">Scanned {code}</p>
         )}
       </div>
-      {!code && <p className="text-center text-sm text-muted-foreground">Point at a product barcode</p>}
+      {!code && (
+        <p className="text-center text-sm text-muted-foreground">
+          Hold the barcode flat inside the box, about 15 cm away
+        </p>
+      )}
       {error && <ErrorText message={error} />}
       {result && <ResultCard result={result} />}
       {result && <AddToLogButton result={result} />}
@@ -446,7 +504,13 @@ function BarcodeView({ onDescribeInstead }: { onDescribeInstead: () => void }) {
           className="flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            if (manual.trim()) void lookup(manual.trim());
+            const typed = manual.trim();
+            if (!typed) return;
+            if ([8, 12, 13].includes(typed.length) && !isValidProductCode(typed)) {
+              setError("That number doesn't look right — check the digits under the barcode.");
+              return;
+            }
+            void lookup(typed);
           }}
         >
           <input
