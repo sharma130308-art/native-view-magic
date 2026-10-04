@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DataSafetyRouteImport } from './routes/data-safety'
 import { Route as DeleteAccountRouteImport } from './routes/delete-account'
 import { Route as FoodLoggingRouteImport } from './routes/food-logging'
 import { Route as GettingStartedRouteImport } from './routes/getting-started'
@@ -46,6 +47,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataSafetyRoute = DataSafetyRouteImport.update({
+  id: '/data-safety',
+  path: '/data-safety',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeleteAccountRoute = DeleteAccountRouteImport.update({
@@ -182,6 +188,7 @@ const ApiPreviewDoctorRoute = ApiPreviewDoctorRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/data-safety': typeof DataSafetyRoute
   '/delete-account': typeof DeleteAccountRoute
   '/food-logging': typeof FoodLoggingRoute
   '/getting-started': typeof GettingStartedRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/data-safety': typeof DataSafetyRoute
   '/delete-account': typeof DeleteAccountRoute
   '/food-logging': typeof FoodLoggingRoute
   '/getting-started': typeof GettingStartedRoute
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/data-safety': typeof DataSafetyRoute
   '/delete-account': typeof DeleteAccountRoute
   '/food-logging': typeof FoodLoggingRoute
   '/getting-started': typeof GettingStartedRoute
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/data-safety'
     | '/delete-account'
     | '/food-logging'
     | '/getting-started'
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/data-safety'
     | '/delete-account'
     | '/food-logging'
     | '/getting-started'
@@ -335,6 +346,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/data-safety'
     | '/delete-account'
     | '/food-logging'
     | '/getting-started'
@@ -366,6 +378,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  DataSafetyRoute: typeof DataSafetyRoute
   DeleteAccountRoute: typeof DeleteAccountRoute
   FoodLoggingRoute: typeof FoodLoggingRoute
   GettingStartedRoute: typeof GettingStartedRoute
@@ -408,6 +421,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data-safety': {
+      id: '/data-safety'
+      path: '/data-safety'
+      fullPath: '/data-safety'
+      preLoaderRoute: typeof DataSafetyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/delete-account': {
@@ -598,6 +618,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  DataSafetyRoute: DataSafetyRoute,
   DeleteAccountRoute: DeleteAccountRoute,
   FoodLoggingRoute: FoodLoggingRoute,
   GettingStartedRoute: GettingStartedRoute,
