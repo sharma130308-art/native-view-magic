@@ -11,7 +11,10 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "ios:sync": "cap sync ios",
+    "ios:open": "cap open ios",
+    "ios:check": "node scripts/check-ios.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"

@@ -204,6 +204,16 @@
 }
 
 /* Short cross-fade between screens (View Transitions). */
+/* UIKit supplies safe-area insets in the connected iOS shell. Do not add them twice. */
+html[data-native-app] nav {
+  min-height: 4rem;
+}
+html[data-native-app] input,
+html[data-native-app] textarea,
+html[data-native-app] select {
+  font-size: max(1rem, 1em);
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 140ms;

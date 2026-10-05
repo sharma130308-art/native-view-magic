@@ -28,7 +28,7 @@ export function TabBar({ active }: { active: Tab }) {
     </Link>
   );
   return (
-    <nav className="sticky bottom-0 z-20 flex h-16 shrink-0 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]">
+    <nav className="sticky bottom-0 z-20 flex h-[calc(4rem+env(safe-area-inset-bottom))] shrink-0 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]">
       {tabs.slice(0, 2).map(item)}
       <div className="flex flex-1 items-center justify-center">
         <Link

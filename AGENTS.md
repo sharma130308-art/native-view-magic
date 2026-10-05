@@ -14,3 +14,5 @@
 - Developer tools (e.g. `/preview-doctor`) live on separate routes — keeps the recreated Flutter screens faithful.
 - Keep Workout in the second main navigation position and expose food History from Profile — matches the requested ZyraFit information architecture.
 - Workout videos are a shared library: admins (user_roles) upload to the private `workout-videos` bucket + `workout_videos` table; all signed-in users can read — owner curates, members watch.
+- Keep Capacitor iOS as an explicitly connected device-preview target with a local failure screen, not a release bundle — TanStack SSR and AI still require the hosted app; App Store release needs bundled UI and verified native auth.
+- Gate all native plugin calls behind the client-side native-platform check in src/lib/native.ts — browser preview and SSR must remain functional without an iOS bridge.
