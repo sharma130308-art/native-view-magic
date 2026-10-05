@@ -74,10 +74,10 @@ export function AuthForm({ defaultMode = "signin", redirectPath, onModeChange, o
     }
   };
 
-  const continueWithGoogle = async () => {
+  const continueWith = async (provider: "google" | "apple") => {
     setBusy(true);
     try {
-      const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: redirectUrl() });
+      const r = await lovable.auth.signInWithOAuth(provider, { redirect_uri: redirectUrl() });
       if (r.error) toast.error(String(r.error.message ?? r.error));
       else if (!("redirected" in r && r.redirected)) onSuccess?.();
     } finally {
@@ -129,7 +129,11 @@ export function AuthForm({ defaultMode = "signin", redirectPath, onModeChange, o
         <span className="text-xs text-muted-foreground">or</span>
         <span className="h-px flex-1 bg-border" />
       </div>
-      <Button type="button" variant="secondary" disabled={busy} onClick={() => void continueWithGoogle()}>
+      <Button type="button" className="bg-foreground text-background hover:bg-foreground/90" disabled={busy} onClick={() => void continueWith("apple")}>
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.66zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.09 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.28z"/></svg>
+        Continue with Apple
+      </Button>
+      <Button type="button" variant="secondary" disabled={busy} onClick={() => void continueWith("google")}>
         Continue with Google
       </Button>
       <button type="button" className="text-sm text-primary" onClick={() => setMode(mode === "signup" ? "signin" : "signup")}>
