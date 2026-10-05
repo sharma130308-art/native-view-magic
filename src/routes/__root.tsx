@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import { RegisterServiceWorker } from "@/components/zyra/RegisterServiceWorker";
 import { hideSplash } from "@/lib/splash";
+import { initializeNativeApp } from "@/lib/native";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -150,6 +151,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    void initializeNativeApp();
     // The welcome screen hides the splash itself, after it has checked whether the person is signed in.
     if (window.location.pathname !== "/") hideSplash();
   }, []);

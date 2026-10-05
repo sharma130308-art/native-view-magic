@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { isNativeApp } from "@/lib/native";
 
 function isBlockedContext() {
   const host = window.location.hostname;
@@ -10,6 +11,7 @@ function isBlockedContext() {
     }
   })();
   return (
+    isNativeApp() ||
     !import.meta.env.PROD ||
     inIframe ||
     host.startsWith("id-preview--") ||
